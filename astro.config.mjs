@@ -17,7 +17,7 @@ import { defineConfig } from 'astro/config';
 // (or '/' for the root domain); asset refs concatenate cleanly in both cases.
 export default defineConfig({
   site: 'https://kigster.github.io',
-  base: '/sopsy-site/',
+  base: '/',
   // Static, zero-JS-by-default marketing site. Sprinkle of vanilla JS only
   // where it earns its keep (copy buttons, scroll reveal).
   build: {
