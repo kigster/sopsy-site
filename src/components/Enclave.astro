@@ -1,0 +1,51 @@
+---
+const points = [
+  {
+    h: 'Generated inside the chip.',
+    p: 'On Apple Silicon the private key is created within the Secure Enclave and bound to that hardware — it cannot be read, copied, or exported by anyone or anything.',
+  },
+  {
+    h: 'Released only with Touch ID.',
+    p: 'Decryption prompts your fingerprint. The Enclave hands the key to sops for one operation, then it is gone again.',
+  },
+  {
+    h: 'Only the public recipient travels.',
+    p: 'The <code class="mono lime">age1se1…</code> string is safe to commit and safe to share. It is all a teammate or admin needs to grant you access.',
+  },
+  {
+    h: 'Lose the device, keep the repo.',
+    p: 'Because the key is bound to one Mac, a break-glass recipient is what keeps secrets recoverable if every Enclave device is lost.',
+  },
+];
+---
+
+<section class="section enclave" id="security">
+  <div class="container enclave__grid">
+    <div data-reveal>
+      <p class="eyebrow eyebrow--lime">The Secure Enclave security model</p>
+      <h2 class="section-title">The private key never leaves your Mac.</h2>
+      <ul class="keylist">
+        {points.map((pt) => (
+          <li>
+            <span class="mark" aria-hidden="true">▸</span>
+            <span><b>{pt.h}</b> <Fragment set:html={pt.p} /></span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div data-reveal aria-hidden="true">
+      <div class="vault">
+        <span class="vault__ring"></span>
+        <span class="vault__ring vault__ring--2"></span>
+        <span class="vault__ring vault__ring--3"></span>
+        <span class="vault__chip vault__chip--a">age-plugin-se</span>
+        <span class="vault__chip vault__chip--b">public · age1se1…</span>
+        <span class="vault__chip vault__chip--c">Touch ID gated</span>
+        <div class="vault__core">
+          <span class="lock">🔒</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

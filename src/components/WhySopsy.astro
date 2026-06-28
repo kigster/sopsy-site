@@ -1,0 +1,106 @@
+---
+// The core argument: every row is a real task you can already do with raw
+// sops/age — and the friction sopsy removes. Content drawn straight from the
+// sopsy command reference and the "how encryption flows" docs.
+const rows = [
+  {
+    task: 'Bootstrap a repo',
+    sops: 'Hand-write <code>.sops.yaml</code> creation_rules, craft <code>.gitignore</code> rules, build <code>.env.example</code>, then encrypt by hand.',
+    sopsy: 'One idempotent command writes every file and seeds an encrypted <code>.env.encrypted</code> for you.',
+    cmd: 'sopsy init',
+  },
+  {
+    task: 'Get a hardware identity',
+    sops: 'Run <code>age-plugin-se keygen</code>, copy the public key, paste it into config without fat-fingering it.',
+    sopsy: 'The Enclave identity is generated, printed prominently, and recorded in config automatically.',
+    cmd: 'sopsy init',
+  },
+  {
+    task: 'Onboard a teammate',
+    sops: 'Edit <code>.sops.yaml</code>, then remember to run <code>sops updatekeys</code> on every encrypted file by hand.',
+    sopsy: 'Add the recipient once; sopsy re-wraps every secret for the new key set in one step.',
+    cmd: 'sopsy recipient add',
+  },
+  {
+    task: 'Rotate / offboard keys',
+    sops: 'Manually re-key each file; forget one and a departed key still decrypts new commits.',
+    sopsy: 'Every recipient change re-encrypts all secrets via <code>sops updatekeys</code> automatically.',
+    cmd: 'sopsy recipient remove',
+  },
+  {
+    task: 'Edit an encrypted file',
+    sops: 'Pass <code>--input-type</code>/<code>--output-type</code> yourself — <code>.env.encrypted</code> has no extension sops recognizes.',
+    sopsy: 'File type is auto-detected (dotenv / yaml / json / binary); your <code>$EDITOR</code> just opens.',
+    cmd: 'sopsy edit',
+  },
+  {
+    task: 'Guard CI against leaks',
+    sops: 'Roll your own grep for tracked plaintext and hope it catches every case.',
+    sopsy: 'Seven hygiene invariants, a clear pass/fail checklist, and a non-zero exit on any violation.',
+    cmd: 'sopsy check',
+  },
+  {
+    task: 'Diagnose a broken setup',
+    sops: 'Dig through <code>$PATH</code>, tool versions, and Enclave status by hand.',
+    sopsy: 'A grouped, colorful report you can paste straight into a GitHub issue — always exits 0.',
+    cmd: 'sopsy doctor',
+  },
+  {
+    task: 'Stay disaster-proof',
+    sops: 'Nothing reminds you to keep an offline recovery key. Lose the device, lose the secrets.',
+    sopsy: 'doctor and check nag until a break-glass key exists; sopsy refuses to remove the last one.',
+    cmd: 'sopsy check',
+  },
+];
+---
+
+<section class="section" id="why">
+  <div class="container">
+    <div class="versus__head" data-reveal>
+      <div>
+        <p class="eyebrow eyebrow--lime">Why not just use sops?</p>
+        <h2 class="section-title">You already can. sopsy removes the eight ways you get it wrong.</h2>
+      </div>
+      <p class="section-lead">
+        Everything here runs <strong>sops</strong> + <strong>age</strong> under the hood. The
+        difference is the friction — the steps you have to remember, the flags you have to know,
+        and the safety rails that aren't there until you build them.
+      </p>
+    </div>
+
+    <div class="versus" data-reveal>
+      <div class="versus__row">
+        <div class="versus__cell versus__cell--head"><span class="versus__col">Task</span></div>
+        <div class="versus__cell versus__cell--head">
+          <span class="versus__col versus__col--sops"><span class="pill">raw</span> sops + age</span>
+        </div>
+        <div class="versus__cell versus__cell--head">
+          <span class="versus__col versus__col--sopsy"><span class="pill">with</span> sopsy</span>
+        </div>
+      </div>
+
+      {rows.map((r) => (
+        <div class="versus__row">
+          <div class="versus__cell">
+            <span class="versus__task">{r.task}</span>
+          </div>
+          <div class="versus__cell">
+            <p class="versus__sops"><span class="x">✕</span><Fragment set:html={r.sops} /></p>
+          </div>
+          <div class="versus__cell versus__cell--sopsy">
+            <p class="versus__sopsy">
+              <span class="c">→</span><Fragment set:html={r.sopsy} />
+              <br /><code>{r.cmd}</code>
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <p class="versus__foot" data-reveal>
+      <span class="lime">●</span>
+      <b>Net effect:</b> the same battle-tested crypto, minus the foot-guns — every interactive
+      prompt also has a flag, so a human at a terminal and an unattended CI job run the exact same tool.
+    </p>
+  </div>
+</section>

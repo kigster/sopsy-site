@@ -1,0 +1,54 @@
+---
+const steps = [
+  { h: 'Start (or enter) a git repository', p: '<code>git init my-app && cd my-app</code>' },
+  { h: 'Bootstrap everything', p: '<code>sopsy init</code> — tools check, Secure Enclave identity, config files.' },
+  { h: 'Put real secrets in', p: '<code>sopsy edit .env.encrypted</code> decrypts to your editor and re-encrypts on save.' },
+  { h: 'Verify hygiene before you commit', p: '<code>sopsy check</code> — the same command your CI runs.' },
+  { h: 'Commit the encrypted artifacts', p: 'Plaintext <code>.env</code> is already gitignored. Push the ciphertext with confidence.' },
+];
+
+const term = [
+  { c: 'prompt', t: 'git init my-app && cd my-app' },
+  { c: 'prompt', t: 'sopsy init' },
+  { c: 'ok', t: '  ✔ identity + config written' },
+  { c: 'prompt', t: 'sopsy edit .env.encrypted' },
+  { c: 'cmt', t: '  ◇ Touch ID … editing … re-encrypting' },
+  { c: 'prompt', t: 'sopsy check && echo "secrets hygiene: OK"' },
+  { c: 'ok', t: '  ✔ all checks passed · exit 0' },
+  { c: 'ok', t: 'secrets hygiene: OK' },
+  { c: 'prompt', t: 'git add .sops.yaml .sopsy.yml .env.* .gitignore' },
+  { c: 'prompt', t: 'git commit -m "Add encrypted secrets managed by sopsy"' },
+];
+---
+
+<section class="section" id="quickstart">
+  <div class="container qs__wrap">
+    <div data-reveal>
+      <p class="eyebrow eyebrow--lime">Quick start</p>
+      <h2 class="section-title">From zero to committed secrets in five steps.</h2>
+      <ol class="steps">
+        {steps.map((s) => (
+          <li>
+            <div>
+              <h4>{s.h}</h4>
+              <p><Fragment set:html={s.p} /></p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <div data-reveal>
+      <div class="terminal">
+        <div class="terminal__bar">
+          <div class="terminal__dots"><i></i><i></i><i></i></div>
+          <span class="terminal__title">the whole workflow</span>
+        </div>
+        <div class="terminal__body">
+          {term.map((l) => <span class={`ln ${l.c}`}>{l.t}</span>)}
+          <span class="ln prompt cursor"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

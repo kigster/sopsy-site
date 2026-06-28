@@ -1,0 +1,74 @@
+---
+const install = 'cargo install sopsy';
+// Each terminal line gets an incremental reveal delay.
+const lines = [
+  { c: 'prompt', t: 'sopsy init' },
+  { c: 'cmt', t: '  ◇ checking toolchain …' },
+  { c: 'ok', t: '  ✔ sops 3.9.4   ✔ age 1.2.1   ✔ age-plugin-se   ✔ git' },
+  { c: 'cmt', t: '  ◇ generating Secure Enclave identity (Touch ID) …' },
+  { c: 'key', t: '  ➜ public recipient  age1se1qg8vw9k2…  ← safe to share' },
+  { c: 'info', t: '  ◇ writing repo files …' },
+  { c: 'ok', t: '  ✔ .sops.yaml  ✔ .env.example  ✔ .env.encrypted' },
+  { c: 'ok', t: '  ✔ .gitignore  ✔ .sopsy.yml' },
+  { c: 'warn', t: '  ⚠ no break-glass key yet — add one before you ship' },
+  { c: 'ok', t: '  ✔ repository bootstrapped in 4.2s' },
+];
+---
+
+<section class="hero">
+  <div class="container">
+    <p class="eyebrow hero__kicker" data-reveal>A Rust CLI for SOPS · age · Secure Enclave</p>
+
+    <h1 data-reveal>
+      The missing <span class="swap">developer experience</span> for <em>SOPS</em>.
+    </h1>
+
+    <div class="hero__cols">
+      <div data-reveal>
+        <p class="hero__sub">
+          <b>sopsy</b> makes it delightful to keep encrypted secrets in Git. It bootstraps a
+          repo in minutes, mints hardware-backed identities in the macOS Secure Enclave, manages
+          your team's recipients, and ships a CI gate that fails the build the second a plaintext
+          secret sneaks in.
+        </p>
+
+        <div class="hero__actions">
+          <div class="copyfield">
+            <span class="sigil">$</span>
+            <span>{install}</span>
+            <button data-copy={install} aria-label="Copy install command">copy</button>
+          </div>
+          <a class="btn btn--ghost" href="#quickstart">Quick start ↓</a>
+        </div>
+
+        <p class="hero__note">
+          <span class="dot" aria-hidden="true"></span>
+          Doesn't replace SOPS — it makes SOPS delightful. Same engine, better defaults.
+        </p>
+
+        <div class="badges" aria-label="Project badges">
+          <span class="badge">crate <b>v1</b></span>
+          <span class="badge">CI <b class="lime">passing</b></span>
+          <span class="badge">license <b>MIT / Apache-2.0</b></span>
+          <span class="badge">🍎 <b>Apple Silicon</b></span>
+          <span class="badge">key <b>never leaves the chip</b></span>
+        </div>
+      </div>
+
+      <div data-reveal>
+        <div class="terminal" role="img" aria-label="Terminal showing 'sopsy init' bootstrapping a repository">
+        <div class="terminal__bar">
+          <div class="terminal__dots"><i></i><i></i><i></i></div>
+          <span class="terminal__title">~/my-app — sopsy</span>
+        </div>
+        <div class="terminal__body reveal-lines">
+          {lines.map((l, i) => (
+            <span class={`ln ${l.c}`} style={`animation-delay:${i * 220 + 200}ms`}>{l.t}</span>
+          ))}
+          <span class="ln prompt cursor" style={`animation-delay:${lines.length * 220 + 300}ms`}></span>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
