@@ -4,52 +4,81 @@
 // sopsy command reference and the "how encryption flows" docs.
 const rows = [
   {
-    task: 'Bootstrap a repo',
-    sops: 'Hand-write <code>.sops.yaml</code> creation_rules, craft <code>.gitignore</code> rules, build <code>.env.example</code>, then encrypt by hand.',
-    sopsy: 'One idempotent command writes every file and seeds an encrypted <code>.env.encrypted</code> for you.',
-    cmd: 'sopsy init',
+    task: "Bootstrap a repo",
+    sops: "Hand-write <code>.sops.yaml</code> creation_rules, craft <code>.gitignore</code> rules, build <code>.env.example</code>, then encrypt by hand.",
+    sopsy:
+      "One idempotent command writes every file and seeds an encrypted <code>.env.encrypted</code> for you.",
+    cmd: "sopsy init",
   },
   {
-    task: 'Get a hardware identity',
-    sops: 'Run <code>age-plugin-se keygen</code>, copy the public key, paste it into config without fat-fingering it.',
-    sopsy: 'The Enclave identity is generated, printed prominently, and recorded in config automatically.',
-    cmd: 'sopsy init',
+    task: "Get a hardware identity",
+    sops: "Run <code>age-plugin-se keygen</code>, copy the public key, paste it into config without fat-fingering it.",
+    sopsy:
+      "The Enclave identity is generated, printed prominently, and recorded in config automatically.",
+    cmd: "sopsy init",
   },
   {
-    task: 'Onboard a teammate',
-    sops: 'Edit <code>.sops.yaml</code>, then remember to run <code>sops updatekeys</code> on every encrypted file by hand.',
-    sopsy: 'Add the recipient once; sopsy re-wraps every secret for the new key set in one step.',
-    cmd: 'sopsy recipient add',
+    task: "Onboard a teammate",
+    sops: "Hand-edit <code>.sops.yaml</code>, run <code>sops updatekeys</code> on every file — and just trust on faith that the key really belongs to them.",
+    sopsy:
+      "The newcomer <code>join</code>s to record a <em>pending</em> request (no access yet); any active member <code>approve</code>s — vouching for the key, promoting it, and re-keying every secret in one step.",
+    cmd: "sopsy join → sopsy approve",
   },
   {
-    task: 'Rotate / offboard keys',
-    sops: 'Manually re-key each file; forget one and a departed key still decrypts new commits.',
-    sopsy: 'Every recipient change re-encrypts all secrets via <code>sops updatekeys</code> automatically.',
-    cmd: 'sopsy recipient remove',
+    task: "Rotate / offboard keys",
+    sops: "Manually re-key each file; forget one and a departed key still decrypts new commits.",
+    sopsy:
+      "Every recipient change re-encrypts all secrets via <code>sops updatekeys</code> automatically.",
+    cmd: "sopsy recipient remove",
   },
   {
-    task: 'Edit an encrypted file',
-    sops: 'Pass <code>--input-type</code>/<code>--output-type</code> yourself — <code>.env.encrypted</code> has no extension sops recognizes.',
-    sopsy: 'File type is auto-detected (dotenv / yaml / json / binary); your <code>$EDITOR</code> just opens.',
-    cmd: 'sopsy edit',
+    task: "Edit an encrypted file",
+    sops: "Pass <code>--input-type</code>/<code>--output-type</code> yourself — <code>.env.encrypted</code> has no extension sops recognizes.",
+    sopsy:
+      "File type is auto-detected (dotenv / yaml / json / binary); your <code>$EDITOR</code> just opens.",
+    cmd: "sopsy edit",
   },
   {
-    task: 'Guard CI against leaks',
-    sops: 'Roll your own grep for tracked plaintext and hope it catches every case.',
-    sopsy: 'Seven hygiene invariants, a clear pass/fail checklist, and a non-zero exit on any violation.',
-    cmd: 'sopsy check',
+    task: "Encrypt a file in one shot",
+    sops: "Call <code>sops --encrypt</code> with the right <code>--input-type</code>, then redirect the output yourself and hope the artifact matches a creation rule.",
+    sopsy:
+      "<code>sopsy secrets encrypt</code> writes a <code>.encrypted</code> artifact, auto-detecting the format — <code>.env</code>, <code>json</code>, <code>yaml</code>, <code>ini</code> — all encrypt <em>values only</em>; anything else as one blob.",
+    cmd: "sopsy secrets encrypt [file] -o file.encrypted",
   },
   {
-    task: 'Diagnose a broken setup',
-    sops: 'Dig through <code>$PATH</code>, tool versions, and Enclave status by hand.',
-    sopsy: 'A grouped, colorful report you can paste straight into a GitHub issue — always exits 0.',
-    cmd: 'sopsy doctor',
+    task: "Decrypt to stdout or a file",
+    sops: "<code>sops --decrypt</code> with manual type flags, then redirect — easy to clobber the wrong file or leak plaintext to disk.",
+    sopsy:
+      "<code>sopsy secrets decrypt</code> prints plaintext to stdout or writes it with <code>-o file</code>.",
+    cmd: "sopsy secrets decrypt file.encrypted [-o file]",
   },
   {
-    task: 'Stay disaster-proof',
-    sops: 'Nothing reminds you to keep an offline recovery key. Lose the device, lose the secrets.',
-    sopsy: 'doctor and check nag until a break-glass key exists; sopsy refuses to remove the last one.',
-    cmd: 'sopsy check',
+    task: "Know what's value-encryptable",
+    sops: "Dig through docs to learn which formats support partial, values-only encryption versus whole-file.",
+    sopsy:
+      "<code>sopsy list-supported-types</code> prints exactly which extensions value-encrypt (.env / .yaml / .json / .ini); everything else is encrypted as a single binary blob.",
+    cmd: "sopsy list-supported-types",
+  },
+  {
+    task: "Guard CI against leaks",
+    sops: "Roll your own grep for tracked plaintext and hope it catches every case.",
+    sopsy:
+      "Seven hygiene invariants, a clear pass/fail checklist, and a non-zero exit on any violation.",
+    cmd: "sopsy check",
+  },
+  {
+    task: "Diagnose a broken setup",
+    sops: "Dig through <code>$PATH</code>, tool versions, and Enclave status by hand.",
+    sopsy:
+      "A grouped, colorful report you can paste straight into a GitHub issue — always exits 0.",
+    cmd: "sopsy doctor",
+  },
+  {
+    task: "Stay disaster-proof",
+    sops: "Nothing reminds you to keep an offline recovery key. Lose the device, lose the secrets.",
+    sopsy:
+      "doctor and check nag until a break-glass key exists; sopsy refuses to remove the last one.",
+    cmd: "sopsy check",
   },
 ];
 ---
@@ -59,48 +88,72 @@ const rows = [
     <div class="versus__head" data-reveal>
       <div>
         <p class="eyebrow eyebrow--lime">Why not just use sops?</p>
-        <h2 class="section-title">You already can. sopsy removes the eight ways you get it wrong.</h2>
+        <h2 class="section-title">
+          You already can. sopsy removes the eleven ways you can get it wrong.
+        </h2>
       </div>
       <p class="section-lead">
-        Everything here runs <strong>sops</strong> + <strong>age</strong> under the hood. The
-        difference is the friction — the steps you have to remember, the flags you have to know,
-        and the safety rails that aren't there until you build them.
+        Everything here runs <strong>sops</strong> + <strong>age</strong> under the
+        hood. The difference is the <strong>friction</strong> — the steps you have
+        to remember, the flags you have to know, and the safety rails that aren't
+        there until you build them.
       </p>
     </div>
 
     <div class="versus" data-reveal>
       <div class="versus__row">
-        <div class="versus__cell versus__cell--head"><span class="versus__col">Task</span></div>
         <div class="versus__cell versus__cell--head">
-          <span class="versus__col versus__col--sops"><span class="pill">raw</span> sops + age</span>
+          <span class="versus__col">Task</span>
         </div>
         <div class="versus__cell versus__cell--head">
-          <span class="versus__col versus__col--sopsy"><span class="pill">with</span> sopsy</span>
+          <span class="versus__col versus__col--sops"
+            ><span class="pill">raw</span> sops + age</span
+          >
+        </div>
+        <div class="versus__cell versus__cell--head">
+          <span class="versus__col versus__col--sopsy"
+            ><span class="pill">with</span> sopsy</span
+          >
         </div>
       </div>
 
-      {rows.map((r) => (
-        <div class="versus__row">
-          <div class="versus__cell">
-            <span class="versus__task">{r.task}</span>
+      {
+        rows.map((r) => (
+          <div class="versus__row">
+            <div class="versus__cell">
+              <span class="versus__task">{r.task}</span>
+            </div>
+            <div class="versus__cell">
+              <p class="versus__sops">
+                <>
+                  <span class="x">✕</span>
+                  <Fragment set:html={r.sops} />
+                </>
+              </p>
+            </div>
+            <div class="versus__cell versus__cell--sopsy">
+              <p class="versus__sopsy">
+                <>
+                  <span class="c">→</span>
+                  <Fragment set:html={r.sopsy} />
+                </>
+                <>
+                  <br />
+                  <br />
+                  <code>{r.cmd}</code>
+                </>
+              </p>
+            </div>
           </div>
-          <div class="versus__cell">
-            <p class="versus__sops"><span class="x">✕</span><Fragment set:html={r.sops} /></p>
-          </div>
-          <div class="versus__cell versus__cell--sopsy">
-            <p class="versus__sopsy">
-              <span class="c">→</span><Fragment set:html={r.sopsy} />
-              <br /><code>{r.cmd}</code>
-            </p>
-          </div>
-        </div>
-      ))}
+        ))
+      }
     </div>
 
     <p class="versus__foot" data-reveal>
       <span class="lime">●</span>
-      <b>Net effect:</b> the same battle-tested crypto, minus the foot-guns — every interactive
-      prompt also has a flag, so a human at a terminal and an unattended CI job run the exact same tool.
+      <b>Net effect:</b> the same battle-tested crypto, minus the foot-guns — every
+      interactive prompt also has a flag, so a human at a terminal and an unattended
+      CI job run the exact same tool.
     </p>
   </div>
 </section>

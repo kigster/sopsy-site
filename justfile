@@ -29,6 +29,14 @@ build: setup
 preview: build
     @bun run preview
 
+# Format the whole repo with Prettier
+format: setup
+    @bun run format
+
+# Verify formatting + types without writing (what CI enforces)
+lint: setup
+    @bun run lint
+
 # Convert AsciiDoc posts to Markdown
 convert:
     @bun run convert

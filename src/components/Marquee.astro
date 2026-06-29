@@ -1,13 +1,13 @@
 ---
 const items = [
-  'SOPS encryption engine',
-  'age cryptography',
-  'age-plugin-se',
-  'Secure Enclave',
-  'Touch ID gated',
-  'Git-committed ciphertext',
-  'Zero plaintext leaks',
-  'Scriptable in CI',
+  "SOPS encryption engine",
+  "age cryptography",
+  "age-plugin-se",
+  "Secure Enclave",
+  "Touch ID gated",
+  "Git-committed ciphertext",
+  "Zero plaintext leaks",
+  "Scriptable in CI",
 ];
 // Duplicate the track so the loop is seamless.
 const track = [...items, ...items];
@@ -15,11 +15,13 @@ const track = [...items, ...items];
 
 <div class="marquee" aria-hidden="true">
   <div class="marquee__track">
-    {track.map((t) => (
-      <span class="marquee__item">
-        <span class="marquee__sep">✦</span>
-        <b>{t}</b>
-      </span>
-    ))}
+    {
+      track.map((t) => (
+        <span class="marquee__item">
+          <span class="marquee__sep">✦</span>
+          <b>{t}</b>
+        </span>
+      ))
+    }
   </div>
 </div>
