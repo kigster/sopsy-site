@@ -16,7 +16,8 @@ const {
 <html lang="en">
   <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y4SN28QGC3"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y4SN28QGC3"
+    ></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -74,10 +75,7 @@ const {
     <script>
       // Analytics — thin wrapper around gtag so the rest of the script can
       // fire events without caring whether GA loaded (ad-blocked, offline…).
-      const track = (
-        name: string,
-        params: Record<string, unknown> = {},
-      ) => {
+      const track = (name: string, params: Record<string, unknown> = {}) => {
         (window as any).gtag?.("event", name, params);
       };
 
