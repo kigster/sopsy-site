@@ -1,0 +1,11 @@
+# Git hooks managed by lefthook (https://lefthook.dev).
+# Run `bun install` (or `lefthook install`) once to wire the hooks up.
+pre-commit:
+  parallel: true
+  commands:
+    # Format staged files with the same Prettier config CI enforces, then
+    # re-stage what was fixed — so a commit can never contain unformatted code.
+    prettier:
+      glob: "*.{astro,ts,tsx,js,jsx,mjs,cjs,css,json,jsonc,html,yml,yaml}"
+      run: bunx prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
