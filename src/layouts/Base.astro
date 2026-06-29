@@ -15,6 +15,18 @@ const {
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y4SN28QGC3"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-Y4SN28QGC3");
+    </script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -60,6 +72,26 @@ const {
     <slot />
 
     <script>
+      // Analytics — thin wrapper around gtag so the rest of the script can
+      // fire events without caring whether GA loaded (ad-blocked, offline…).
+      const track = (
+        name: string,
+        params: Record<string, unknown> = {},
+      ) => {
+        (window as any).gtag?.("event", name, params);
+      };
+
+      // Top-nav clicks — one delegated listener for the section links and the
+      // crates.io / GitHub CTAs, so we learn which nav items drive engagement.
+      document.querySelectorAll<HTMLAnchorElement>(".nav a").forEach((a) => {
+        a.addEventListener("click", () => {
+          track("nav_click", {
+            link_text: (a.textContent ?? "").trim(),
+            link_url: a.getAttribute("href") ?? "",
+          });
+        });
+      });
+
       // Theme toggle — dark is the default; the chosen theme persists in
       // localStorage. The initial data-theme is already set by the inline
       // head script above, so there is no flash on load.
@@ -83,6 +115,7 @@ const {
             setTimeout(() => root.classList.remove("theme-anim"), 360);
           }
           root.setAttribute("data-theme", next);
+          track("changeColor", { theme: next });
           try {
             localStorage.setItem("sopsy-theme", next);
           } catch {
@@ -141,7 +174,12 @@ const {
         .forEach((btn) => {
           btn.addEventListener("click", async () => {
             try {
-              await navigator.clipboard.writeText(btn.dataset.copy ?? "");
+              const cmd = btn.dataset.copy ?? "";
+              track("copy_command", {
+                command: cmd,
+                location: btn.closest("[id]")?.id ?? "unknown",
+              });
+              await navigator.clipboard.writeText(cmd);
               const prev = btn.textContent;
               btn.textContent = "copied ✓";
               btn.classList.add("copied");
