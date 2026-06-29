@@ -1,23 +1,33 @@
 ---
 const steps = [
-  { h: 'Start (or enter) a git repository', p: '<code>git init my-app && cd my-app</code>' },
-  { h: 'Bootstrap everything', p: '<code>sopsy init</code> — tools check, Secure Enclave identity, config files.' },
-  { h: 'Put real secrets in', p: '<code>sopsy edit .env.encrypted</code> decrypts to your editor and re-encrypts on save.' },
-  { h: 'Verify hygiene before you commit', p: '<code>sopsy check</code> — the same command your CI runs.' },
-  { h: 'Commit the encrypted artifacts', p: 'Plaintext <code>.env</code> is already gitignored. Push the ciphertext with confidence.' },
-];
-
-const term = [
-  { c: 'prompt', t: 'git init my-app && cd my-app' },
-  { c: 'prompt', t: 'sopsy init' },
-  { c: 'ok', t: '  ✔ identity + config written' },
-  { c: 'prompt', t: 'sopsy edit .env.encrypted' },
-  { c: 'cmt', t: '  ◇ Touch ID … editing … re-encrypting' },
-  { c: 'prompt', t: 'sopsy check && echo "secrets hygiene: OK"' },
-  { c: 'ok', t: '  ✔ all checks passed · exit 0' },
-  { c: 'ok', t: 'secrets hygiene: OK' },
-  { c: 'prompt', t: 'git add .sops.yaml .sopsy.yml .env.* .gitignore' },
-  { c: 'prompt', t: 'git commit -m "Add encrypted secrets managed by sopsy"' },
+  {
+    h: "Start (or enter) a git repository",
+    p: "<code>git init my-app && cd my-app</code>",
+  },
+  {
+    h: "Bootstrap everything",
+    p: "<code>sopsy init</code> — tools check, Secure Enclave identity, config files.",
+  },
+  {
+    h: "Put real secrets in",
+    p: "<code>sopsy edit .env.encrypted</code> decrypts to your editor and re-encrypts on save.",
+  },
+  {
+    h: "Verify hygiene before you commit",
+    p: "<code>sopsy check</code> — the same command your CI runs.",
+  },
+  {
+    h: "Commit the encrypted artifacts",
+    p: "Plaintext <code>.env</code> is already gitignored. Push the ciphertext with confidence.",
+  },
+  {
+    h: "A teammate joins (self-service)",
+    p: 'The new dev clones the repo and runs <code>sopsy join "Alan Turing"</code> — mints their own Secure Enclave key with Touch ID and records a <code>pending</code> request. They commit and open a PR.',
+  },
+  {
+    h: "An existing member approves",
+    p: 'Any current member runs <code>sopsy approve "Alan Turing"</code> — promotes the key into <code>.sops.yaml</code> and re-keys every secret. Now Alan can decrypt.',
+  },
 ];
 ---
 
@@ -25,29 +35,30 @@ const term = [
   <div class="container qs__wrap">
     <div data-reveal>
       <p class="eyebrow eyebrow--lime">Quick start</p>
-      <h2 class="section-title">From zero to committed secrets in five steps.</h2>
+      <h2 class="section-title">From zero to a whole team in seven steps.</h2>
       <ol class="steps">
-        {steps.map((s) => (
-          <li>
-            <div>
-              <h4>{s.h}</h4>
-              <p><Fragment set:html={s.p} /></p>
-            </div>
-          </li>
-        ))}
+        {
+          steps.map((s) => (
+            <li>
+              <div>
+                <h4>{s.h}</h4>
+                <p>
+                  <Fragment set:html={s.p} />
+                </p>
+              </div>
+            </li>
+          ))
+        }
       </ol>
     </div>
 
     <div data-reveal>
-      <div class="terminal">
-        <div class="terminal__bar">
-          <div class="terminal__dots"><i></i><i></i><i></i></div>
-          <span class="terminal__title">the whole workflow</span>
-        </div>
-        <div class="terminal__body">
-          {term.map((l) => <span class={`ln ${l.c}`}>{l.t}</span>)}
-          <span class="ln prompt cursor"></span>
-        </div>
+      <h3 class="qs__cast-title">Watch the entire process live just below…</h3>
+      <!-- asciinema recording goes here — drop the <iframe> inside .qs__cast -->
+      <div class="qs__cast">
+        <h3 class="qs__cast-hint amber">
+          Asciinema Recording of the entire process is coming soon...
+        </h3>
       </div>
     </div>
   </div>

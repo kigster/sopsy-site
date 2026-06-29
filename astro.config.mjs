@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 //
@@ -16,11 +16,11 @@ import { defineConfig } from 'astro/config';
 // `base` keeps a trailing slash so `import.meta.env.BASE_URL` is '/sopsy-site/'
 // (or '/' for the root domain); asset refs concatenate cleanly in both cases.
 export default defineConfig({
-  site: 'https://kigster.github.io',
-  base: '/',
+  site: "https://kigster.github.io",
+  base: "/",
   // Static, zero-JS-by-default marketing site. Sprinkle of vanilla JS only
   // where it earns its keep (copy buttons, scroll reveal).
   build: {
-    inlineStylesheets: 'auto',
+    inlineStylesheets: "auto",
   },
 });

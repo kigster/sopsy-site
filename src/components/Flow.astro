@@ -1,28 +1,28 @@
 ---
 const nodes = [
   {
-    cls: '',
-    idx: '01',
-    h: '.env  ·  plaintext',
-    p: 'Your real <code>KEY=value</code> secrets. Gitignored automatically — never committed.',
+    cls: "",
+    idx: "01",
+    h: ".env  ·  plaintext",
+    p: "Your real <code>KEY=value</code> secrets. Gitignored automatically — never committed.",
   },
   {
-    cls: 'flownode--enc',
-    idx: '02',
-    h: 'sops --encrypt --input-type dotenv',
-    p: 'Recipients come from <code>.sops.yaml</code> creation_rules. sopsy never touches ciphertext itself.',
+    cls: "flownode--enc",
+    idx: "02",
+    h: "sops --encrypt --input-type dotenv",
+    p: "Recipients come from <code>.sops.yaml</code> creation_rules. sopsy never touches ciphertext itself.",
   },
   {
-    cls: 'flownode--git',
-    idx: '03',
-    h: '.env.encrypted  ·  committed',
-    p: 'Encrypted values + sops metadata. Safe to push — only public recipients live here.',
+    cls: "flownode--git",
+    idx: "03",
+    h: ".env.encrypted  ·  committed",
+    p: "Encrypted values + sops metadata. Safe to push — only public recipients live here.",
   },
   {
-    cls: '',
-    idx: '04',
-    h: 'sopsy edit  →  decrypt  →  re-encrypt',
-    p: 'A Touch ID prompt releases your Enclave key, opens your editor, and re-encrypts on save.',
+    cls: "",
+    idx: "04",
+    h: "sopsy edit  →  decrypt  →  re-encrypt",
+    p: "A Touch ID prompt releases your Enclave key, opens your editor, and re-encrypts on save.",
   },
 ];
 ---
@@ -31,12 +31,18 @@ const nodes = [
   <div class="container flow__wrap">
     <div data-reveal>
       <p class="eyebrow">How encryption flows</p>
-      <h2 class="section-title">Plaintext stays local. Only ciphertext ships.</h2>
+      <h2 class="section-title">
+        Plaintext stays local. Only ciphertext ships.
+      </h2>
       <p class="section-lead">
-        sopsy shells out to <strong>sops</strong>, which uses <strong>age</strong> recipients drawn
-        from <code class="mono lime">.sops.yaml</code>. The primary path is dotenv: a plaintext
-        <code class="mono">.env</code> becomes an encrypted <code class="mono">.env.encrypted</code> that's
-        safe to commit.
+        sopsy shells out to <strong>sops</strong>, which uses <strong
+          >age</strong
+        > recipients drawn from
+        <code class="mono lime">.sops.yaml</code>. The primary path is dotenv: a
+        plaintext
+        <code class="mono">.env</code> becomes an encrypted <code class="mono"
+          >.env.encrypted</code
+        > that's safe to commit.
       </p>
       <p class="section-lead" style="margin-top:1.2rem;font-size:var(--step-0)">
         Only encrypted files and public metadata belong in Git. The plaintext
@@ -45,18 +51,26 @@ const nodes = [
     </div>
 
     <div class="flowdiagram" data-reveal>
-      {nodes.map((n, i) => (
-        <>
-          <div class={`flownode ${n.cls}`}>
-            <span class="flownode__idx">{n.idx}</span>
-            <div>
-              <h4>{n.h}</h4>
-              <p><Fragment set:html={n.p} /></p>
+      {
+        nodes.map((n, i) => (
+          <>
+            <div class={`flownode ${n.cls}`}>
+              <span class="flownode__idx">{n.idx}</span>
+              <div>
+                <h4>{n.h}</h4>
+                <p>
+                  <Fragment set:html={n.p} />
+                </p>
+              </div>
             </div>
-          </div>
-          {i < nodes.length - 1 && <span class="flowarrow" aria-hidden="true">↓</span>}
-        </>
-      ))}
+            {i < nodes.length - 1 && (
+              <span class="flowarrow" aria-hidden="true">
+                ↓
+              </span>
+            )}
+          </>
+        ))
+      }
     </div>
   </div>
 </section>

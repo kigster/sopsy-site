@@ -2,32 +2,32 @@
 // The real sopsy onboarding lifecycle: self-service join → approve → re-key → edit.
 const steps = [
   {
-    cls: 'keyflow__node--gen',
-    icon: '🔑',
-    kbd: 'sopsy join',
-    title: 'Generate',
-    body: 'age-plugin-se mints your keypair via Touch ID. The private key is sealed in the Secure Enclave; your public key is recorded pending in .sopsy.yml.',
+    cls: "keyflow__node--gen",
+    icon: "🔑",
+    kbd: "sopsy join",
+    title: "Generate",
+    body: "age-plugin-se mints your keypair via Touch ID. The private key is sealed in the Secure Enclave; your public key is recorded pending in .sopsy.yml.",
   },
   {
-    cls: 'keyflow__node--public',
-    icon: '✅',
-    kbd: 'sopsy approve',
-    title: 'Vouch & approve',
-    body: 'You open a PR; any active member vouches and promotes your public key from pending into .sops.yaml’s recipient list.',
+    cls: "keyflow__node--public",
+    icon: "✅",
+    kbd: "sopsy approve",
+    title: "Vouch & approve",
+    body: "You open a PR; any active member vouches and promotes your public key from pending into .sops.yaml’s recipient list.",
   },
   {
-    cls: 'keyflow__node--enc',
-    icon: '🔁',
-    kbd: 'sops updatekeys',
-    title: 'Re-key secrets',
-    body: 'Every encrypted file is re-wrapped for the new recipient set — so your key, and only listed keys, can open them.',
+    cls: "keyflow__node--enc",
+    icon: "🔁",
+    kbd: "sops updatekeys",
+    title: "Re-key secrets",
+    body: "Every encrypted file is re-wrapped for the new recipient set — so your key, and only listed keys, can open them.",
   },
   {
-    cls: 'keyflow__node--edit',
-    icon: '✏️',
-    kbd: 'sopsy edit',
-    title: 'Edit & commit',
-    body: 'git pull, then Touch ID decrypts into your editor and re-encrypts on save. Commit the ciphertext; plaintext .env stays gitignored.',
+    cls: "keyflow__node--edit",
+    icon: "✏️",
+    kbd: "sopsy edit",
+    title: "Edit & commit",
+    body: "git pull, then Touch ID decrypts into your editor and re-encrypts on save. Commit the ciphertext; plaintext .env stays gitignored.",
   },
 ];
 ---
@@ -35,35 +35,48 @@ const steps = [
 <section class="section statement" data-reveal>
   <div class="container">
     <p class="statement__title">
-      sopsy does <span class="muted">not</span> replace SOPS. It makes SOPS <span class="hot">delightful</span>.
+      sopsy does <span class="muted">not</span> replace SOPS. It makes SOPS <span
+        class="hot">delightful</span
+      >.
     </p>
 
-    <div class="keyflow" data-reveal aria-label="How a Secure Enclave key is generated and used">
-      {steps.map((s, i) => (
-        <>
-          <div class={`keyflow__node ${s.cls}`}>
-            <span class="keyflow__icon" aria-hidden="true">{s.icon}</span>
-            <span class="keyflow__kbd">{s.kbd}</span>
-            <h4>{s.title}</h4>
-            <p>{s.body}</p>
-          </div>
-          {i < steps.length - 1 && (
-            <span class={`keyflow__link ${i === 0 ? 'keyflow__link--split' : ''}`} aria-hidden="true">
-              <span class="keyflow__pulse"></span>
-            </span>
-          )}
-        </>
-      ))}
+    <div
+      class="keyflow"
+      data-reveal
+      aria-label="How a Secure Enclave key is generated and used"
+    >
+      {
+        steps.map((s, i) => (
+          <>
+            <div class={`keyflow__node ${s.cls}`}>
+              <span class="keyflow__icon" aria-hidden="true">
+                {s.icon}
+              </span>
+              <span class="keyflow__kbd">{s.kbd}</span>
+              <h4>{s.title}</h4>
+              <p>{s.body}</p>
+            </div>
+            {i < steps.length - 1 && (
+              <span
+                class={`keyflow__link ${i === 0 ? "keyflow__link--split" : ""}`}
+                aria-hidden="true"
+              >
+                <span class="keyflow__pulse" />
+              </span>
+            )}
+          </>
+        ))
+      }
     </div>
 
     <div class="statement__cols">
       <p class="statement__col statement__col--l">
-        SOPS stays the encryption engine. <strong>age</strong> stays the cryptography. The Secure
-        Enclave holds the private key.
+        SOPS stays the encryption engine. <strong>age</strong> stays the cryptography.
+        The Secure Enclave holds the private key.
       </p>
       <p class="statement__col statement__col--r">
-        sopsy orchestrates all three with safe defaults, great diagnostics, and a scriptable
-        interface — so the right thing is finally the easy thing.
+        sopsy orchestrates all three with safe defaults, great diagnostics, and
+        a scriptable interface — so the right thing is finally the easy thing.
       </p>
     </div>
   </div>

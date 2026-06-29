@@ -1,5 +1,6 @@
 ---
-const reg = 'sopsy recipient add break-glass --public-key age1q... --break-glass';
+const reg =
+  "sopsy recipient add break-glass --public-key age1q... --break-glass";
 ---
 
 <section class="section section--tight">
@@ -10,14 +11,17 @@ const reg = 'sopsy recipient add break-glass --public-key age1q... --break-glass
           <p class="eyebrow eyebrow--amber">Break-glass keys</p>
           <h3>Set up disaster recovery on day one.</h3>
           <p>
-            A break-glass key is a separate emergency age key pair, stored <b>offline</b> in a
-            vault and shared with only a few admins. If every developer's Secure Enclave device is
-            lost, it can still decrypt and re-key the repository.
+            A break-glass key is a separate emergency age key pair, stored <b
+              >offline</b
+            > in a vault and shared with only a few admins. If every developer's Secure
+            Enclave device is lost, it can still decrypt and re-key the repository.
           </p>
           <p style="margin-top:1rem">
-            Lose your only Enclave device with no break-glass key, and every secret becomes <b>permanently
-            undecryptable</b>. That's why <code class="mono amber">doctor</code> and <code class="mono amber">check</code> nag
-            until one exists — and sopsy refuses to remove the sole break-glass recipient.
+            Lose your only Enclave device with no break-glass key, and every
+            secret becomes <b>permanently undecryptable</b>. That's why <code
+              class="mono amber">doctor</code
+            > and <code class="mono amber">check</code> nag until one exists — and
+            sopsy refuses to remove the sole break-glass recipient.
           </p>
         </div>
         <div>
@@ -27,15 +31,23 @@ const reg = 'sopsy recipient add break-glass --public-key age1q... --break-glass
               <span class="terminal__title">offline · once</span>
             </div>
             <div class="terminal__body">
-              <span class="ln cmt"># generate an emergency key pair OFFLINE</span>
+              <span class="ln cmt"
+                ># generate an emergency key pair OFFLINE</span
+              >
               <span class="ln prompt">age-keygen -o break-glass.key</span>
-              <span class="ln key">  public key: age1q…  ← register this</span>
-              <span class="ln cmt"># store break-glass.key in 1Password / a vault</span>
+              <span class="ln key"> public key: age1q… ← register this</span>
+              <span class="ln cmt"
+                ># store break-glass.key in 1Password / a vault</span
+              >
               <span class="ln cmt"></span>
-              <span class="ln cmt"># register it as the break-glass recipient</span>
+              <span class="ln cmt"
+                ># register it as the break-glass recipient</span
+              >
               <span class="ln prompt">sopsy recipient add break-glass \</span>
-              <span class="ln">    --public-key age1q… --break-glass</span>
-              <span class="ln ok">  ✔ re-encrypted 3 files for new recipient set</span>
+              <span class="ln"> --public-key age1q… --break-glass</span>
+              <span class="ln ok">
+                ✔ re-encrypted 3 files for new recipient set</span
+              >
             </div>
           </div>
         </div>

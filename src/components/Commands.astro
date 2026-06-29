@@ -1,64 +1,76 @@
 ---
 const cmds = [
   {
-    kw: 'sopsy',
-    name: 'init',
-    sub: '',
-    p: 'Bootstrap an encrypted repository: verify the toolchain, acquire an age recipient, and write every config file. Idempotent — keeps existing files unless <code>--force</code>.',
+    kw: "sopsy",
+    name: "init",
+    sub: "",
+    p: "Bootstrap an encrypted repository: verify the toolchain, acquire an age recipient, and write every config file. Idempotent — keeps existing files unless <code>--force</code>.",
   },
   {
-    kw: 'sopsy',
-    name: 'doctor',
-    sub: '',
-    p: 'Print a grouped health report — system, tools, repository, recipients — and always exit 0. Safe to paste into a bug report.',
+    kw: "sopsy",
+    name: "doctor",
+    sub: "",
+    p: "Print a grouped health report — system, tools, repository, recipients — and always exit 0. Safe to paste into a bug report.",
   },
   {
-    kw: 'sopsy',
-    name: 'join',
-    sub: '<name>',
-    p: 'Self-service onboarding: generate your Secure Enclave key (Touch ID) and record a <code>pending</code> request in <code>.sopsy.yml</code>. Commit, open a PR, and ask any member to approve.',
+    kw: "sopsy",
+    name: "join",
+    sub: "<name>",
+    p: "Self-service onboarding: generate your Secure Enclave key (Touch ID) and record a <code>pending</code> request in <code>.sopsy.yml</code>. Commit, open a PR, and ask any member to approve.",
   },
   {
-    kw: 'sopsy',
-    name: 'approve',
-    sub: '<name>',
-    p: 'Any active member vouches for a pending key, promotes it into <code>.sops.yaml</code>, and re-keys every secret. Refuses requests older than <code>join_request_ttl</code> (default 72h).',
+    kw: "sopsy",
+    name: "approve",
+    sub: "<name>",
+    p: "Any active member vouches for a pending key, promotes it into <code>.sops.yaml</code>, and re-keys every secret. Refuses requests older than <code>join_request_ttl</code> (default 72h).",
   },
   {
-    kw: 'sopsy',
-    name: 'edit',
-    sub: '<file>',
-    p: 'Open an encrypted file in your editor through SOPS, with friendly errors and automatic file-type detection. Resolution: <code>--editor → $EDITOR → $VISUAL → vi</code>.',
+    kw: "sopsy",
+    name: "edit",
+    sub: "<file>",
+    p: "Open an encrypted file in your editor through SOPS, with friendly errors and automatic file-type detection. Resolution: <code>--editor → $EDITOR → $VISUAL → vi</code>.",
   },
   {
-    kw: 'sopsy',
-    name: 'recipient',
-    sub: 'add · remove · list · break-glass · keygen',
-    p: 'Manage who can decrypt. add/remove keep <code>.sopsy.yml</code> and <code>.sops.yaml</code> in sync and re-key secrets; <code>break-glass</code> runs the offline-key ceremony; <code>keygen</code> mints an Enclave key without registering it.',
+    kw: "sopsy",
+    name: "recipient",
+    sub: "add · remove · list · break-glass · keygen",
+    p: "Manage who can decrypt. add/remove keep <code>.sopsy.yml</code> and <code>.sops.yaml</code> in sync and re-key secrets; <code>break-glass</code> runs the offline-key ceremony; <code>keygen</code> mints an Enclave key without registering it.",
   },
   {
-    kw: 'sopsy',
-    name: 'check',
-    sub: '',
-    p: 'The CI gate: seven hygiene invariants, a pass/fail checklist, non-zero exit on any violation. Never decrypts — needs no key, runs anywhere.',
+    kw: "sopsy",
+    name: "secrets",
+    sub: "encrypt · decrypt",
+    p: "One-shot, scriptable crypto outside the editor. <code>secrets encrypt</code> writes a <code>.encrypted</code> artifact (or stdout); <code>secrets decrypt</code> prints plaintext to stdout or <code>-o</code> a file — ideal for <code>direnv</code> and CI. Structured <code>.env</code>/yaml/json/ini encrypt values only; anything else as one blob.",
   },
   {
-    kw: 'sopsy',
-    name: 'deps',
-    sub: '',
-    p: 'Install the external tools (<code>sops</code>, <code>age</code>, <code>age-plugin-se</code>) with Homebrew. Probes first, installs only what is missing. The remedy that pairs with doctor.',
+    kw: "sopsy",
+    name: "list-supported-types",
+    sub: "",
+    p: "Print the file formats sopsy understands and which extensions auto-detect to each: <code>dotenv</code>, <code>yaml</code>, <code>json</code>, <code>ini</code> (value-encrypted) plus <code>binary</code> (whole-file). Takes no flags.",
   },
   {
-    kw: 'sopsy',
-    name: 'completion',
-    sub: '<shell>',
-    p: 'Generate shell completions for bash, zsh, fish, powershell, and elvish — derived from the CLI definition, so they never drift from the real flags.',
+    kw: "sopsy",
+    name: "check",
+    sub: "",
+    p: "The CI gate: seven hygiene invariants, a pass/fail checklist, non-zero exit on any violation. Never decrypts — needs no key, runs anywhere.",
   },
   {
-    kw: 'sopsy',
-    name: '--help',
-    sub: '',
-    p: 'A clap-based CLI: <code>sopsy --help</code> and <code>sopsy &lt;command&gt; --help</code> are always authoritative. Every interactive prompt has an equivalent flag.',
+    kw: "sopsy",
+    name: "deps",
+    sub: "",
+    p: "Install the external tools (<code>sops</code>, <code>age</code>, <code>age-plugin-se</code>) with Homebrew. Probes first, installs only what is missing. The remedy that pairs with doctor.",
+  },
+  {
+    kw: "sopsy",
+    name: "completion",
+    sub: "<shell>",
+    p: "Generate shell completions for bash, zsh, fish, powershell, and elvish — derived from the CLI definition, so they never drift from the real flags.",
+  },
+  {
+    kw: "sopsy",
+    name: "--help",
+    sub: "",
+    p: "A clap-based CLI: <code>sopsy --help</code> and <code>sopsy &lt;command&gt; --help</code> are always authoritative. Every interactive prompt has an equivalent flag.",
   },
 ];
 ---
@@ -71,16 +83,20 @@ const cmds = [
     </div>
 
     <div class="cmds" data-reveal>
-      {cmds.map((c) => (
-        <article class="cmd">
-          <div class="cmd__name">
-            <span class="kw">{c.kw}</span>
-            <span>{c.name}</span>
-            {c.sub && <span class="sub">{c.sub}</span>}
-          </div>
-          <p><Fragment set:html={c.p} /></p>
-        </article>
-      ))}
+      {
+        cmds.map((c) => (
+          <article class="cmd">
+            <div class="cmd__name">
+              <span class="kw">{c.kw}</span>
+              <span>{c.name}</span>
+              {c.sub && <span class="sub">{c.sub}</span>}
+            </div>
+            <p>
+              <Fragment set:html={c.p} />
+            </p>
+          </article>
+        ))
+      }
     </div>
   </div>
 </section>

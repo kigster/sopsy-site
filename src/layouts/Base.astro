@@ -1,5 +1,5 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
 
 interface Props {
   title?: string;
@@ -7,9 +7,8 @@ interface Props {
 }
 
 const {
-  title = 'sopsy — the missing developer experience for SOPS',
-  description =
-    'A small, fast, colorful Rust CLI that makes it delightful to keep encrypted secrets in Git. Hardware-backed identities via the macOS Secure Enclave, recipient management, and a CI gate that fails the build the moment a plaintext secret sneaks in.',
+  title = "sopsy — encrypted team secrets in Git, unlocked with Touch ID",
+  description = "A Rust CLI that keeps your team's API keys and .env secrets encrypted in Git. Hardware keys in the macOS Secure Enclave, Touch ID decryption, self-service onboarding, and a CI gate that blocks plaintext leaks. Built on SOPS + age.",
 } = Astro.props;
 ---
 
@@ -18,6 +17,22 @@ const {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Set the theme before first paint so there is no flash. Dark is the
+         default; a stored choice (if any) wins. We intentionally do NOT follow
+         prefers-color-scheme, to keep dark as the default experience. -->
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem("sopsy-theme");
+          if (t !== "light" && t !== "dark") t = "dark";
+          document.documentElement.setAttribute("data-theme", t);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
+
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -27,7 +42,11 @@ const {
     <meta property="og:description" content={description} />
     <meta name="theme-color" content="#08080a" />
 
-    <link rel="icon" href={`${import.meta.env.BASE_URL}favicon.svg`} type="image/svg+xml" />
+    <link
+      rel="icon"
+      href={`${import.meta.env.BASE_URL}favicon.svg`}
+      type="image/svg+xml"
+    />
 
     <!-- Fonts: Syne (display) · Hanken Grotesk (body) · JetBrains Mono (code) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -41,40 +60,100 @@ const {
     <slot />
 
     <script>
+      // Theme toggle — dark is the default; the chosen theme persists in
+      // localStorage. The initial data-theme is already set by the inline
+      // head script above, so there is no flash on load.
+      {
+        const root = document.documentElement;
+        const btn = document.getElementById("theme-toggle");
+        const meta = document.querySelector('meta[name="theme-color"]');
+        const sync = (t: string) => {
+          btn?.setAttribute(
+            "aria-label",
+            t === "light" ? "Switch to dark theme" : "Switch to light theme",
+          );
+          meta?.setAttribute("content", t === "light" ? "#faf7f1" : "#08080a");
+        };
+        sync(root.getAttribute("data-theme") ?? "dark");
+        btn?.addEventListener("click", () => {
+          const next =
+            root.getAttribute("data-theme") === "light" ? "dark" : "light";
+          if (matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+            root.classList.add("theme-anim");
+            setTimeout(() => root.classList.remove("theme-anim"), 360);
+          }
+          root.setAttribute("data-theme", next);
+          try {
+            localStorage.setItem("sopsy-theme", next);
+          } catch {
+            /* storage unavailable — toggle still works for the session */
+          }
+          sync(next);
+        });
+      }
+
+      // Mobile nav — the hamburger toggles the collapsed link dropdown.
+      {
+        const burger = document.getElementById("nav-burger");
+        const menu = document.getElementById("nav-menu");
+        if (burger && menu) {
+          const setOpen = (open: boolean) => {
+            menu.classList.toggle("is-open", open);
+            burger.setAttribute("aria-expanded", String(open));
+          };
+          burger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            setOpen(!menu.classList.contains("is-open"));
+          });
+          menu
+            .querySelectorAll("a")
+            .forEach((a) => a.addEventListener("click", () => setOpen(false)));
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") setOpen(false);
+          });
+          document.addEventListener("click", (e) => {
+            const t = e.target as Node;
+            if (!menu.contains(t) && !burger.contains(t)) setOpen(false);
+          });
+        }
+      }
+
       // Scroll reveal — progressively reveals sections + staggered child rows.
       const io = new IntersectionObserver(
         (entries) => {
           for (const e of entries) {
             if (!e.isIntersecting) continue;
-            e.target.classList.add('is-in');
-            const kids = e.target.querySelectorAll<HTMLElement>('.checkitem');
+            e.target.classList.add("is-in");
+            const kids = e.target.querySelectorAll<HTMLElement>(".checkitem");
             kids.forEach((k, i) => (k.style.animationDelay = `${i * 70}ms`));
             io.unobserve(e.target);
           }
         },
-        { threshold: 0.16, rootMargin: '0px 0px -8% 0px' },
+        { threshold: 0.16, rootMargin: "0px 0px -8% 0px" },
       );
       document
-        .querySelectorAll('[data-reveal], .checklist')
+        .querySelectorAll("[data-reveal], .checklist")
         .forEach((el) => io.observe(el));
 
       // Copy-to-clipboard for install / command fields.
-      document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-          try {
-            await navigator.clipboard.writeText(btn.dataset.copy ?? '');
-            const prev = btn.textContent;
-            btn.textContent = 'copied ✓';
-            btn.classList.add('copied');
-            setTimeout(() => {
-              btn.textContent = prev;
-              btn.classList.remove('copied');
-            }, 1600);
-          } catch {
-            /* clipboard unavailable — no-op */
-          }
+      document
+        .querySelectorAll<HTMLButtonElement>("[data-copy]")
+        .forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            try {
+              await navigator.clipboard.writeText(btn.dataset.copy ?? "");
+              const prev = btn.textContent;
+              btn.textContent = "copied ✓";
+              btn.classList.add("copied");
+              setTimeout(() => {
+                btn.textContent = prev;
+                btn.classList.remove("copied");
+              }, 1600);
+            } catch {
+              /* clipboard unavailable — no-op */
+            }
+          });
         });
-      });
     </script>
   </body>
 </html>

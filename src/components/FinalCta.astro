@@ -1,31 +1,32 @@
 ---
-const install = 'cargo install sopsy';
-const repo = 'https://github.com/kigster/sopsy';
+// Homebrew first (the recommended, prebuilt route), then cargo.
+const installs = ["brew install kigster/tap/sopsy", "cargo install sopsy"];
+const repo = "https://github.com/kigster/sopsy";
 
 const docs = [
   {
-    ic: '📘',
-    h: 'Member guide',
-    p: 'Join a sopsy-managed repo with sopsy join, get approved, the day-to-day workflow, and troubleshooting.',
-    href: 'https://github.com/kigster/sopsy/blob/main/docs/guide-member.md',
+    ic: "📘",
+    h: "Member guide",
+    p: "Join a sopsy-managed repo with sopsy join, get approved, the day-to-day workflow, and troubleshooting.",
+    href: "https://github.com/kigster/sopsy/blob/main/docs/guide-member.md",
   },
   {
-    ic: '🛠️',
-    h: 'Owner guide',
-    p: 'Bootstrap a repo, the join/approve membership lifecycle, offboarding, and break-glass procedures.',
-    href: 'https://github.com/kigster/sopsy/blob/main/docs/guide-owner.md',
+    ic: "🛠️",
+    h: "Owner guide",
+    p: "Bootstrap a repo, the join/approve membership lifecycle, offboarding, and break-glass procedures.",
+    href: "https://github.com/kigster/sopsy/blob/main/docs/guide-owner.md",
   },
   {
-    ic: '📦',
-    h: 'crates.io',
-    p: 'Install with cargo, browse versions, and read the published crate metadata.',
-    href: 'https://crates.io/crates/sopsy',
+    ic: "📦",
+    h: "crates.io",
+    p: "Install with cargo, browse versions, and read the published crate metadata.",
+    href: "https://crates.io/crates/sopsy",
   },
   {
-    ic: '🦀',
-    h: 'docs.rs',
-    p: 'The full API documentation for the sopsy crate, generated from source.',
-    href: 'https://docs.rs/crate/sopsy/latest',
+    ic: "🦀",
+    h: "docs.rs",
+    p: "The full API documentation for the sopsy crate, generated from source.",
+    href: "https://docs.rs/crate/sopsy/latest",
   },
 ];
 ---
@@ -37,30 +38,44 @@ const docs = [
       <h2 class="section-title">Everything you need to run it for real.</h2>
     </div>
     <div class="docs__grid" data-reveal>
-      {docs.map((d) => (
-        <a class="doccard" href={d.href} target="_blank" rel="noopener">
-          <span class="ic" aria-hidden="true">{d.ic}</span>
-          <h4>{d.h}</h4>
-          <p>{d.p}</p>
-          <span class="arr">read ↗</span>
-        </a>
-      ))}
+      {
+        docs.map((d) => (
+          <a class="doccard" href={d.href} target="_blank" rel="noopener">
+            <span class="ic" aria-hidden="true">
+              {d.ic}
+            </span>
+            <h4>{d.h}</h4>
+            <p>{d.p}</p>
+            <span class="arr">read ↗</span>
+          </a>
+        ))
+      }
     </div>
   </div>
 
   <div class="container finalcta" data-reveal>
     <h2>Make SOPS delightful.</h2>
     <p class="section-lead" style="margin-inline:auto">
-      Small, fast, colorful, and macOS-first. Your secrets stay in Git — encrypted — while the
-      key that decrypts them never leaves the chip.
+      Small, fast, colorful, and macOS-first. Your secrets stay in Git —
+      encrypted — while the key that decrypts them never leaves the chip.
     </p>
-    <div class="copyfield" style="margin-inline:auto">
-      <span class="sigil">$</span>
-      <span>{install}</span>
-      <button data-copy={install} aria-label="Copy install command">copy</button>
+    <div class="finalcta__cmds">
+      {
+        installs.map((cmd) => (
+          <div class="copyfield">
+            <span class="sigil">$</span>
+            <span>{cmd}</span>
+            <button data-copy={cmd} aria-label={`Copy: ${cmd}`}>
+              copy
+            </button>
+          </div>
+        ))
+      }
     </div>
     <div class="finalcta__actions">
-      <a class="btn btn--primary" href={repo} target="_blank" rel="noopener">Star on GitHub ↗</a>
+      <a class="btn btn--primary" href={repo} target="_blank" rel="noopener"
+        >Star on GitHub ↗</a
+      >
       <a class="btn btn--ghost" href="#quickstart">Read the quick start</a>
     </div>
   </div>

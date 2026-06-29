@@ -1,66 +1,81 @@
 ---
 const features = [
   {
-    icon: '🔐',
-    title: 'Secure Enclave identities',
-    body: 'Your private key is generated inside Apple Silicon hardware, gated by Touch ID, and impossible to read, copy, or exfiltrate. Only the public recipient is ever shared.',
-    span: 'feature--xl',
-    tag: 'hardware',
+    icon: "🔐",
+    title: "Secure Enclave identities",
+    body: "Your private key is generated inside Apple Silicon hardware, gated by Touch ID, and impossible to read, copy, or exfiltrate. Only the public recipient is ever shared.",
+    span: "feature--xl",
+    tag: "hardware",
   },
   {
-    icon: '📦',
-    title: 'One-command bootstrap',
-    body: '<code>sopsy init</code> writes .sops.yaml, .env.example, an encrypted .env.encrypted, .gitignore safety rules, and .sopsy.yml. Idempotent — re-running is always safe.',
-    span: 'feature--md',
-    tag: 'init',
+    icon: "📦",
+    title: "One-command bootstrap",
+    body: "<code>sopsy init</code> writes .sops.yaml, .env.example, an encrypted .env.encrypted, .gitignore safety rules, and .sopsy.yml. Idempotent — re-running is always safe.",
+    span: "feature--md",
+    tag: "init",
   },
   {
-    icon: '🩺',
-    title: 'doctor health checks',
-    body: 'macOS, Apple Silicon, Secure Enclave, Touch ID, every external tool, and repo health — a colorful report you can paste straight into an issue.',
-    span: 'feature--lg',
-    tag: 'diagnostics',
+    icon: "🩺",
+    title: "doctor health checks",
+    body: "macOS, Apple Silicon, Secure Enclave, Touch ID, every external tool, and repo health — a colorful report you can paste straight into an issue.",
+    span: "feature--lg",
+    tag: "diagnostics",
   },
   {
-    icon: '✏️',
-    title: 'Friendlier edits',
-    body: 'Open an encrypted file through SOPS with automatic file-type detection and nicer errors. Your $EDITOR, your workflow — none of the flag-juggling.',
-    span: 'feature--lg',
-    tag: 'edit',
+    icon: "✏️",
+    title: "Friendlier edits",
+    body: "Open an encrypted file through SOPS with automatic file-type detection and nicer errors. Your $EDITOR, your workflow — none of the flag-juggling.",
+    span: "feature--lg",
+    tag: "edit",
   },
   {
-    icon: '👥',
-    title: 'Recipient management',
-    body: 'Add, remove, and list who can decrypt. Every change re-wraps existing secrets via <code>sops updatekeys</code>, so the key set never drifts from the ciphertext.',
-    span: 'feature--md',
-    tag: 'recipients',
+    icon: "🔁",
+    title: "Scriptable encrypt / decrypt",
+    body: `One-shot, no-editor crypto for scripts and CI. <code>sopsy secrets encrypt .env -o .env.encrypted</code> and <code>sopsy secrets decrypt .env.encrypted</code> (to stdout, or <code>-o</code> a file). Structured <code>.env</code> / JSON / YAML / INI encrypt <em>values only</em>; everything else becomes one binary blob. Pipe decrypted values straight into your shell — via <code>direnv</code> in <code>.envrc</code> or a wrapper around your app — with no plaintext ever hitting disk:<code class="feature__cmd">eval "$(sopsy secrets decrypt .env.encrypted | sed -E '/^#/d; /^$/d; s/^([A-Z])/export \\1/g')"</code>`,
+    span: "feature--full",
+    tag: "secrets",
   },
   {
-    icon: '🧪',
-    title: 'A CI gate that bites',
-    body: 'Seven hygiene invariants, a pass/fail checklist, and a non-zero exit the moment a plaintext secret is tracked. Needs no key — runs on Linux runners too.',
-    span: 'feature--xl',
-    tag: 'check',
+    icon: "👥",
+    title: "Recipient management",
+    body: "Add, remove, and list who can decrypt. Every change re-wraps existing secrets via <code>sops updatekeys</code>, so the key set never drifts from the ciphertext.",
+    span: "feature--md",
+    tag: "recipients",
+  },
+  {
+    icon: "🧪",
+    title: "A CI gate that bites",
+    body: "Seven hygiene invariants, a pass/fail checklist, and a non-zero exit the moment a plaintext secret is tracked. Needs no key — runs on Linux runners too.",
+    span: "feature--xl",
+    tag: "check",
   },
 ];
 ---
 
 <section class="section" id="features">
   <div class="container">
-    <div data-reveal style="margin-bottom:3rem;max-width:46ch">
+    <div data-reveal style="margin-bottom:3rem;max-width:80ch">
       <p class="eyebrow">What's in the box</p>
-      <h2 class="section-title">Safe defaults, sharp diagnostics, zero ceremony.</h2>
+      <h2 class="section-title">
+        Safe defaults, sharp diagnostics, zero ceremony.
+      </h2>
     </div>
 
     <div class="features__grid" data-reveal>
-      {features.map((f) => (
-        <article class={`feature ${f.span}`}>
-          <span class="feature__tag">{f.tag}</span>
-          <span class="feature__icon" aria-hidden="true">{f.icon}</span>
-          <h3>{f.title}</h3>
-          <p><Fragment set:html={f.body} /></p>
-        </article>
-      ))}
+      {
+        features.map((f) => (
+          <article class={`feature ${f.span}`}>
+            <span class="feature__tag">{f.tag}</span>
+            <span class="feature__icon" aria-hidden="true">
+              {f.icon}
+            </span>
+            <h3>{f.title}</h3>
+            <p>
+              <Fragment set:html={f.body} />
+            </p>
+          </article>
+        ))
+      }
     </div>
   </div>
 </section>

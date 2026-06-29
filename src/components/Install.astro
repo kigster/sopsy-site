@@ -1,0 +1,59 @@
+---
+// Two install paths, lifted from ../sopsy/README.md "Install".
+const methods = [
+  {
+    name: "Homebrew",
+    tag: "recommended",
+    rec: true,
+    cmd: "brew install kigster/tap/sopsy",
+    body: "Installs a <b>prebuilt binary</b> — no Rust toolchain — and pulls the tools sopsy orchestrates (<code>sops</code>, <code>age</code>, and <code>age-plugin-se</code>) automatically. Nothing else to set up.",
+  },
+  {
+    name: "From crates.io",
+    tag: "requires Rust",
+    rec: false,
+    cmd: "cargo install sopsy",
+    body: "Builds from source with Cargo. You'll still need <code>sops</code>, <code>age</code>, and <code>age-plugin-se</code> on your <code>PATH</code> — or run <code>sopsy deps</code> to fetch them.",
+  },
+];
+---
+
+<section class="section" id="install">
+  <div class="container">
+    <div data-reveal style="margin-bottom: 2.5rem; max-width: 80ch">
+      <p class="eyebrow">Install</p>
+      <h2 class="section-title">Up and running in one command.</h2>
+    </div>
+
+    <div class="install__grid" data-reveal>
+      {
+        methods.map((m) => (
+          <article class="install__card">
+            <div class="install__head">
+              <h3>{m.name}</h3>
+              <span class={`install__tag${m.rec ? " install__tag--rec" : ""}`}>
+                {m.tag}
+              </span>
+            </div>
+            <div class="copyfield">
+              <span class="sigil">$</span>
+              <span>{m.cmd}</span>
+              <button data-copy={m.cmd} aria-label={`Copy: ${m.cmd}`}>
+                copy
+              </button>
+            </div>
+            <p class="install__body">
+              <Fragment set:html={m.body} />
+            </p>
+          </article>
+        ))
+      }
+    </div>
+
+    <p class="install__note" data-reveal>
+      <span class="lime">●</span>
+      macOS-first (v1.1). Homebrew installs the prebuilt binary and every prerequisite;
+      the Cargo path needs the Rust toolchain.
+    </p>
+  </div>
+</section>

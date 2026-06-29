@@ -1,12 +1,12 @@
 ---
 const invariants = [
-  '<b>.env</b> is not tracked by git',
-  '<b>.env</b> is gitignored',
-  '<b>.sops.yaml</b> valid + has creation_rules',
-  'every encrypted file matches a creation rule',
-  'no plaintext secrets tracked',
-  'every encrypted file carries sops metadata',
-  'a break-glass recipient is configured',
+  "<b>.env</b> is not tracked by git",
+  "<b>.env</b> is gitignored",
+  "<b>.sops.yaml</b> valid + has creation_rules",
+  "every encrypted file matches a creation rule",
+  "no plaintext secrets tracked",
+  "every encrypted file carries sops metadata",
+  "a break-glass recipient is configured",
 ];
 ---
 
@@ -14,29 +14,41 @@ const invariants = [
   <div class="container ci__wrap">
     <div data-reveal>
       <p class="eyebrow">The CI gate</p>
-      <h2 class="section-title">Seven invariants stand between you and a leak.</h2>
+      <h2 class="section-title">
+        Seven invariants stand between you and a leak.
+      </h2>
       <p class="section-lead">
-        <code class="mono lime">sopsy check</code> is the one command you want in CI and in a
-        pre-commit hook. It validates encrypted files by their on-disk sops metadata — never by
-        decrypting — so it needs <strong>no private key and no Secure Enclave</strong>. Drop it on a
-        Linux runner and it just works.
+        <code class="mono lime">sopsy check</code> is the one command you want in
+        CI and in a pre-commit hook. It validates encrypted files by their on-disk
+        sops metadata — never by decrypting — so it needs <strong
+          >no private key and no Secure Enclave</strong
+        >. Drop it on a Linux runner and it just works.
       </p>
       <div class="copyfield" style="margin-top:1.8rem">
         <span class="sigil">$</span>
         <span>sopsy check && echo "secrets hygiene: OK"</span>
-        <button data-copy={'sopsy check && echo "secrets hygiene: OK"'} aria-label="Copy check command">copy</button>
+        <button
+          data-copy={'sopsy check && echo "secrets hygiene: OK"'}
+          aria-label="Copy check command">copy</button
+        >
       </div>
     </div>
 
     <div data-reveal>
       <div class="checklist">
-        {invariants.map((inv, i) => (
-          <div class="checkitem">
-            <span class="num">{String(i + 1).padStart(2, '0')}</span>
-            <span class="pass" aria-hidden="true">✔</span>
-            <span><Fragment set:html={inv} /></span>
-          </div>
-        ))}
+        {
+          invariants.map((inv, i) => (
+            <div class="checkitem">
+              <span class="num">{String(i + 1).padStart(2, "0")}</span>
+              <span class="pass" aria-hidden="true">
+                ✔
+              </span>
+              <span>
+                <Fragment set:html={inv} />
+              </span>
+            </div>
+          ))
+        }
       </div>
       <div class="ci__verdict">
         <span aria-hidden="true">✔</span> all checks passed · exit 0
