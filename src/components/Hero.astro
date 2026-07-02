@@ -23,6 +23,7 @@ const lines = [
   { c: "ok", t: "  ✔ recorded break-glass in both config files" },
   { c: "ok", t: "  ✔ repository bootstrapped" },
 ];
+import { VERSION } from "../const";
 ---
 
 <section class="hero">
@@ -117,7 +118,7 @@ const lines = [
           </p>
 
           <div class="badges" aria-label="Project badges">
-            <span class="badge">crate <b>v1.1</b></span>
+            <span class="badge">crate <b>v{VERSION}</b></span>
             <span class="badge">CI <b class="lime">passing</b></span>
             <span class="badge">license <b>MIT / Apache-2.0</b></span>
             <span class="badge">🍎 <b>Apple Silicon</b></span>

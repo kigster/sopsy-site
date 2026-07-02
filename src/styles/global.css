@@ -16,6 +16,7 @@
   --ink-2: #111118;
   --ink-3: #181821;
   --ink-4: #21212c;
+  --ink-5: #31312c;
   --line: rgba(236, 232, 225, 0.1);
   --line-soft: rgba(236, 232, 225, 0.055);
   --line-hot: rgba(255, 90, 48, 0.42);
@@ -38,8 +39,8 @@
 
   /* ----- type scale (fluid) ----- */
   --step--1: clamp(0.78rem, 0.74rem + 0.2vw, 0.88rem);
-  --step-0: clamp(0.95rem, 0.9rem + 0.25vw, 1.05rem);
-  --step-1: clamp(1.15rem, 1.05rem + 0.5vw, 1.4rem);
+  --step-0: clamp(0.9rem, 1rem + 0.25vw, 1.1rem);
+  --step-1: clamp(1.2rem, 1.05rem + 0.5vw, 1.4rem);
   --step-2: clamp(1.5rem, 1.3rem + 1vw, 2.1rem);
   --step-3: clamp(2.1rem, 1.7rem + 2vw, 3.4rem);
   --step-4: clamp(2.8rem, 2rem + 4vw, 5.6rem);
@@ -75,14 +76,15 @@ html {
   *,
   *::before,
   *::after {
-    animation-duration: 0.001ms !important;
+    animation-duration: 0.1ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    transition-duration: 0.1ms !important;
   }
 }
 
 body {
   font-family: var(--font-body);
+  font-weight: 600;
   font-size: var(--step-0);
   line-height: 1.6;
   color: var(--bone-2);
@@ -586,18 +588,28 @@ samp {
 .nav__links {
   display: flex;
   align-items: center;
-  gap: 1.6rem;
+  gap: 1rem;
 }
 .nav__links a {
   font-family: var(--font-mono);
   font-size: 0.78rem;
+  font-weight: 800;
   color: var(--bone-dim);
   letter-spacing: 0.02em;
-  transition: color 0.15s;
+  transition: color 0.45s;
+  background-color: var(--ink-5);
+  padding: 7px 12px;
+  border: 1px solid var(--ink-4);
+  border-radius: 5px;
 }
 .nav__links a:hover {
-  color: var(--bone);
+  color: var(--rust-deep);
+  border: 1px solid var(--ink-1);
+  background-color: var(--rust);
+  border: 1px solid var(--rust-glows);
+  color: black;
 }
+
 .nav__cta {
   display: flex;
   align-items: center;
@@ -658,7 +670,7 @@ samp {
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    padding: 0.4rem var(--gutter) 1rem;
+    padding: 0.2rem var(--gutter) 1rem;
     /* ink-3 reads lighter than the page on dark, darker on light */
     background: var(--ink-3);
     border-bottom: 1px solid var(--line);
@@ -667,10 +679,30 @@ samp {
   .nav__links.is-open {
     display: flex;
   }
+  .nav__links a::before {
+    content: "→";
+    display: inline-block;
+    width: 0;
+    opacity: 0;
+    transition:
+      width 0.15s ease,
+      opacity 0.15s ease,
+      margin-right 0.15s ease;
+    margin-right: 0;
+    overflow: hidden;
+    vertical-align: bottom;
+  }
+
+  .nav__links a:hover::before {
+    width: 1em;
+    opacity: 1;
+    margin-right: 0.35rem;
+  }
   .nav__links a {
-    padding: 0.9rem 0.2rem;
+    padding: 0.4rem 2rem;
     font-size: 0.85rem;
     border-bottom: 1px solid var(--line-soft);
+    margin-bottom: 2px;
   }
   .nav__links a:last-child {
     border-bottom: 0;

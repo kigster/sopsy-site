@@ -1,7 +1,7 @@
 {
   "name": "sopsy-site",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Marketing site for sopsy — the missing developer experience for SOPS.",
   "scripts": {
     "dev": "astro dev",

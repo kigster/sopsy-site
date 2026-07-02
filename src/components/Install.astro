@@ -16,6 +16,7 @@ const methods = [
     body: "Builds from source with Cargo. You'll still need <code>sops</code>, <code>age</code>, and <code>age-plugin-se</code> on your <code>PATH</code> — or run <code>sopsy deps</code> to fetch them.",
   },
 ];
+import { VERSION } from "../const";
 ---
 
 <section class="section" id="install">
@@ -52,8 +53,8 @@ const methods = [
 
     <p class="install__note" data-reveal>
       <span class="lime">●</span>
-      macOS-first (v1.1). Homebrew installs the prebuilt binary and every prerequisite;
-      the Cargo path needs the Rust toolchain.
+      macOS-first (v{VERSION}). Homebrew installs the prebuilt binary and every
+      prerequisite; the Cargo path needs the Rust toolchain.
     </p>
   </div>
 </section>

@@ -1,0 +1,3 @@
+// src/consts.ts
+import pkg from "../package.json";
+export const VERSION = pkg.version;
