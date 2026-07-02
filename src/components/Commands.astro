@@ -10,7 +10,7 @@ const cmds = [
     kw: "sopsy",
     name: "doctor",
     sub: "",
-    p: "Print a grouped health report — system, tools, repository, recipients — and always exit 0. Safe to paste into a bug report.",
+    p: "Print a grouped health report — system, tools, repository, recipients — and always exit 0. Repairs a stale <code>.sopsy.sha</code> checksum (its only write). Safe to paste into a bug report.",
   },
   {
     kw: "sopsy",
@@ -22,7 +22,7 @@ const cmds = [
     kw: "sopsy",
     name: "approve",
     sub: "<name>",
-    p: "Any active member vouches for a pending key, promotes it into <code>.sops.yaml</code>, and re-keys every secret. Refuses requests older than <code>join_request_ttl</code> (default 72h).",
+    p: "Any active member vouches for a pending key, promotes it into <code>.sops.yaml</code>, and re-keys every secret — recording <code>approved_by</code> and <code>approved_at</code> for the audit trail, with atomic rollback if the re-key fails. Refuses requests older than <code>join_request_ttl</code> (default 72h).",
   },
   {
     kw: "sopsy",
@@ -33,8 +33,8 @@ const cmds = [
   {
     kw: "sopsy",
     name: "recipient",
-    sub: "add · remove · list · break-glass · keygen",
-    p: "Manage who can decrypt. add/remove keep <code>.sopsy.yml</code> and <code>.sops.yaml</code> in sync and re-key secrets; <code>break-glass</code> runs the offline-key ceremony; <code>keygen</code> mints an Enclave key without registering it.",
+    sub: "add · remove · list · keygen · break-glass · ci",
+    p: "Manage who can decrypt. add/remove keep <code>.sopsy.yml</code> and <code>.sops.yaml</code> in sync and re-key secrets; <code>list</code> prints every member with their approval provenance; <code>break-glass</code> and <code>ci</code> run guided portable-key ceremonies; <code>keygen</code> mints an Enclave key without registering it.",
   },
   {
     kw: "sopsy",
@@ -58,7 +58,7 @@ const cmds = [
     kw: "sopsy",
     name: "deps",
     sub: "",
-    p: "Install the external tools (<code>sops</code>, <code>age</code>, <code>age-plugin-se</code>) with Homebrew. Probes first, installs only what is missing. The remedy that pairs with doctor.",
+    p: "Install the external tools (<code>sops</code>, <code>age</code>, <code>age-plugin-se</code>) with Homebrew. Probes first, installs only what is missing. The remedy that pairs with doctor: <code>--check</code> fails CI if anything is absent, <code>--dry-run</code> previews the brew command.",
   },
   {
     kw: "sopsy",

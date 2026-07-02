@@ -17,7 +17,7 @@ const features = [
   {
     icon: "🩺",
     title: "doctor health checks",
-    body: "macOS, Apple Silicon, Secure Enclave, Touch ID, every external tool, and repo health — a colorful report you can paste straight into an issue.",
+    body: "macOS, Apple Silicon, Secure Enclave, Touch ID, every external tool, and repo health — a colorful report you can paste straight into an issue. <code>sopsy deps</code> is the remedy: it installs whatever doctor found missing.",
     span: "feature--lg",
     tag: "diagnostics",
   },
@@ -48,6 +48,34 @@ const features = [
     body: "Seven hygiene invariants, a pass/fail checklist, and a non-zero exit the moment a plaintext secret is tracked. Needs no key — runs on Linux runners too.",
     span: "feature--xl",
     tag: "check",
+  },
+  {
+    icon: "🤝",
+    title: "Self-service onboarding",
+    body: "Newcomers <code>sopsy join</code> to mint a key and record a <em>pending</em> request — no access granted yet. Any active member <code>sopsy approve</code>s: vouch for the key, promote it, re-key. Requests expire after 72h by default.",
+    span: "feature--lg",
+    tag: "join / approve",
+  },
+  {
+    icon: "🧾",
+    title: "A built-in audit trail",
+    body: 'Every member carries their name, username, when they requested access, and who granted it — <code>approved_by</code> recorded as <em>"Konstantin Gredeskoul (kig)"</em>. <code>sopsy recipient list</code> shows it all in one table.',
+    span: "feature--lg",
+    tag: "provenance",
+  },
+  {
+    icon: "🛡️",
+    title: "Tamper-evident config",
+    body: "<code>.sopsy.sha</code> — a SHA-256 checksum of <code>.sopsy.yml</code> plus the admin public key — is refreshed on every write and verified on every read, so hand edits are surfaced instead of silently trusted. <code>sopsy doctor</code> repairs it.",
+    span: "feature--md",
+    tag: "integrity",
+  },
+  {
+    icon: "🤖",
+    title: "One-secret CI decryption",
+    body: "<code>sopsy recipient ci</code> runs a guided ceremony that provisions a portable decryption key for your pipeline. Store <em>one</em> CI secret — <code>SOPS_AGE_KEY</code> — and a Linux runner with nothing but <code>sops</code> installed can decrypt.",
+    span: "feature--xl",
+    tag: "ci",
   },
 ];
 ---
