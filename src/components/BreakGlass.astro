@@ -1,6 +1,5 @@
 ---
-const reg =
-  "sopsy recipient add break-glass --public-key age1q... --break-glass";
+// The whole ceremony — generate, hand off, delete, register — is one command.
 ---
 
 <section class="section section--tight">
@@ -11,17 +10,24 @@ const reg =
           <p class="eyebrow eyebrow--amber">Break-glass keys</p>
           <h3>Set up disaster recovery on day one.</h3>
           <p>
-            A break-glass key is a separate emergency age key pair, stored <b
-              >offline</b
-            > in a vault and shared with only a few admins. If every developer's Secure
-            Enclave device is lost, it can still decrypt and re-key the repository.
+            A break-glass key is a separate emergency age key pair — <b
+              >portable</b
+            > by design, stored <b>offline</b> in a vault and shared with only a few
+            admins. If every developer's Secure Enclave device is lost, it can still
+            decrypt and re-key the repository. <code class="mono amber"
+              >sopsy recipient break-glass</code
+            > runs the whole ceremony in one command: generate, hand off, wait for
+            ENTER, delete the local copies, register and re-key.
           </p>
           <p style="margin-top:1rem">
             Lose your only Enclave device with no break-glass key, and every
             secret becomes <b>permanently undecryptable</b>. That's why <code
               class="mono amber">doctor</code
             > and <code class="mono amber">check</code> nag until one exists — and
-            sopsy refuses to remove the sole break-glass recipient.
+            sopsy refuses to remove the sole break-glass recipient. The same guided
+            ceremony powers <code class="mono amber">sopsy recipient ci</code> for
+            your pipeline — but the two keys must <b>never</b> be the same: offline/few-hands
+            and online/every-run are opposite threat models.
           </p>
         </div>
         <div>
@@ -32,21 +38,22 @@ const reg =
             </div>
             <div class="terminal__body">
               <span class="ln cmt"
-                ># generate an emergency key pair OFFLINE</span
+                ># one guided ceremony: generate → store → delete → register</span
               >
-              <span class="ln prompt">age-keygen -o break-glass.key</span>
-              <span class="ln key"> public key: age1q… ← register this</span>
-              <span class="ln cmt"
-                ># store break-glass.key in 1Password / a vault</span
+              <span class="ln prompt"
+                >sopsy recipient break-glass -o break-glass</span
               >
-              <span class="ln cmt"></span>
-              <span class="ln cmt"
-                ># register it as the break-glass recipient</span
-              >
-              <span class="ln prompt">sopsy recipient add break-glass \</span>
-              <span class="ln"> --public-key age1q… --break-glass</span>
               <span class="ln ok">
-                ✔ re-encrypted 3 files for new recipient set</span
+                ✔ wrote break-glass.private + break-glass.public</span
+              >
+              <span class="ln warn">
+                ⚠ copy both into 1Password / a vault, then continue</span
+              >
+              <span class="ln cmt"> press ENTER once the keys are saved …</span>
+              <span class="ln ok"> ✔ deleted both local key files</span>
+              <span class="ln ok"> ✔ registered break-glass recipient</span>
+              <span class="ln ok">
+                ✔ re-keyed every secret (sops updatekeys)</span
               >
             </div>
           </div>

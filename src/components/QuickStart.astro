@@ -18,7 +18,7 @@ const steps = [
   },
   {
     h: "Commit the encrypted artifacts",
-    p: "Plaintext <code>.env</code> is already gitignored. Push the ciphertext with confidence.",
+    p: "<code>git add .sops.yaml .sopsy.yml .sopsy.sha .env.example .env.encrypted .gitignore</code> — plaintext <code>.env</code> is already gitignored. Push the ciphertext with confidence.",
   },
   {
     h: "A teammate joins (self-service)",
@@ -26,7 +26,7 @@ const steps = [
   },
   {
     h: "An existing member approves",
-    p: 'Any current member runs <code>sopsy approve "Alan Turing"</code> — promotes the key into <code>.sops.yaml</code> and re-keys every secret. Now Alan can decrypt.',
+    p: 'Any current member runs <code>sopsy approve "Alan Turing"</code> — vouches for the key, promotes it into <code>.sops.yaml</code>, and re-keys every secret. Who approved, and when, is recorded in <code>.sopsy.yml</code> — <code>sopsy recipient list</code> shows the whole audit trail. Now Alan can decrypt.',
   },
 ];
 ---

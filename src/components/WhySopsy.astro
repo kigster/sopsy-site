@@ -25,10 +25,17 @@ const rows = [
     cmd: "sopsy join → sopsy approve",
   },
   {
+    task: "Audit who has access",
+    sops: "<code>git blame .sops.yaml</code> and hope the commit history tells the story of who let whom in.",
+    sopsy:
+      "Every member carries <code>requested_at</code>, <code>approved_at</code>, and <code>approved_by</code> — one command prints the whole audit trail as a table.",
+    cmd: "sopsy recipient list",
+  },
+  {
     task: "Rotate / offboard keys",
     sops: "Manually re-key each file; forget one and a departed key still decrypts new commits.",
     sopsy:
-      "Every recipient change re-encrypts all secrets via <code>sops updatekeys</code> automatically.",
+      "Every recipient change re-wraps the existing secrets via <code>sops updatekeys</code> automatically, so a departed key can't read new commits.",
     cmd: "sopsy recipient remove",
   },
   {
@@ -67,6 +74,13 @@ const rows = [
     cmd: "sopsy check",
   },
   {
+    task: "Give CI decryption access",
+    sops: "Generate an age key on a laptop, paste the private half around, hand-edit <code>.sops.yaml</code>, and remember to delete the local copies.",
+    sopsy:
+      "A guided ceremony provisions a portable key, waits while you store <em>one</em> CI secret (<code>SOPS_AGE_KEY</code>), then deletes the local files and re-keys. A Linux runner with only <code>sops</code> installed can decrypt.",
+    cmd: "sopsy recipient ci",
+  },
+  {
     task: "Diagnose a broken setup",
     sops: "Dig through <code>$PATH</code>, tool versions, and Enclave status by hand.",
     sopsy:
@@ -77,8 +91,8 @@ const rows = [
     task: "Stay disaster-proof",
     sops: "Nothing reminds you to keep an offline recovery key. Lose the device, lose the secrets.",
     sopsy:
-      "doctor and check nag until a break-glass key exists; sopsy refuses to remove the last one.",
-    cmd: "sopsy check",
+      "One guided ceremony generates a portable emergency key, waits while you store it offline, then deletes the local copy and registers it — and doctor and check nag until it exists.",
+    cmd: "sopsy recipient break-glass",
   },
 ];
 ---
@@ -89,7 +103,7 @@ const rows = [
       <div>
         <p class="eyebrow eyebrow--lime">Why not just use sops?</p>
         <h2 class="section-title">
-          You already can. sopsy removes the eleven ways you can get it wrong.
+          You already can. sopsy removes the thirteen ways you can get it wrong.
         </h2>
       </div>
       <p class="section-lead">
