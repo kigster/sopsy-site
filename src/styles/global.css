@@ -1099,16 +1099,18 @@ samp {
 
 @media (max-width: 640px) {
   .keyflow__link {
+    /* flex-basis wins over width on the main axis, so the box stays
+       full-row (forcing the wrap); the visible line is painted as a
+       centered 2px background column instead. */
     flex-basis: 100%;
     height: 22px;
-    width: 2px;
     background: linear-gradient(
-      180deg,
-      var(--line),
-      var(--bone-faint),
-      var(--line)
-    );
-    margin-inline: auto;
+        180deg,
+        var(--line),
+        var(--bone-faint),
+        var(--line)
+      )
+      center / 2px 100% no-repeat;
   }
   .keyflow__link::after {
     content: "⌄";
