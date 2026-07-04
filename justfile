@@ -5,7 +5,7 @@ set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 set dotenv-load
 
 version := `cat package.json | jq .version | tr -d '"'`
-
+remote_folder := "kig@sopsy-cli.dev:~/workspace/sopsy/dist"
 
 [no-exit-message]
 recipes:
@@ -49,18 +49,28 @@ digest:
 typecheck:
     @bun run typecheck
 
+# Deploy ./dist folder via rsync to the deploy destination
 deploy: build
-    @rsync -Pavz -e "ssh" ./dist/ kig@fastly-backend.kig.re:~/workspace/sopsy/dist
+    @rsync -Pavz -e "ssh" ./dist/ {{ remote_folder }}
 
+# Run automated tests
 test:
     @bun test tools/
 
+# Print the version of sopsy site
 version: 
     @echo "Site version is {{ version }}"
 
+# create a tag based on the version, push tags, and create a release
 release:
     @git tag -f 'v{{ version }}'
     @git push --tags
     @gh release create --generate-notes
 
+# Wipe ./dist and ./node_modules
+clean:
+    @echo "Removing ./dist..."
+    @rm -rf dist
+    @echo "Removing ./node_modules"
+    @rm -rf node_modules
 
