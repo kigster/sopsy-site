@@ -14,3 +14,4 @@ npm-debug.log*
 # working screenshots / scratch artifacts
 .preview/
 sopsy-init.png
+.claude/
