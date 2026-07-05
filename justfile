@@ -5,7 +5,7 @@ set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 set dotenv-load
 
 version := `cat package.json | jq .version | tr -d '"'`
-remote_folder := "kig@sopsy-cli.dev:~/workspace/sopsy/dist"
+remote_folder := "kig@sopsy-cli.dev.:~/workspace/sopsy/dist"
 
 [no-exit-message]
 recipes:
