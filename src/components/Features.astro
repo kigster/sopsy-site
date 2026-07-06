@@ -31,7 +31,7 @@ const features = [
   {
     icon: "🔁",
     title: "Scriptable encrypt / decrypt",
-    body: `One-shot, no-editor crypto for scripts and CI. <code>sopsy secrets encrypt .env -o .env.encrypted</code> and <code>sopsy secrets decrypt .env.encrypted</code> (to stdout, or <code>-o</code> a file). Structured <code>.env</code> / JSON / YAML / INI encrypt <em>values only</em>; everything else becomes one binary blob. Pipe decrypted values straight into your shell — via <code>direnv</code> in <code>.envrc</code> or a wrapper around your app — with no plaintext ever hitting disk:<code class="feature__cmd">eval "$(sopsy secrets decrypt .env.encrypted | sed -E '/^#/d; /^$/d; s/^([A-Z])/export \\1/g')"</code>`,
+    body: `One-shot, no-editor crypto for scripts and CI. <code>sopsy encrypt .env -o .env.encrypted</code> and <code>sopsy decrypt .env.encrypted</code> (to stdout, or <code>-o</code> a file). Structured <code>.env</code> / JSON / YAML / INI encrypt <em>values only</em>; everything else becomes one binary blob. Pipe decrypted values straight into your shell — via <code>direnv</code> in <code>.envrc</code> or a wrapper around your app — with no plaintext ever hitting disk:<code class="feature__cmd">eval "$(sopsy decrypt .env.encrypted | sed -E '/^#/d; /^$/d; s/^([A-Z])/export \\1/g')"</code>`,
     span: "feature--full",
     tag: "secrets",
   },

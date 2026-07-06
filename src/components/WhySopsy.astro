@@ -49,15 +49,15 @@ const rows = [
     task: "Encrypt a file in one shot",
     sops: "Call <code>sops --encrypt</code> with the right <code>--input-type</code>, then redirect the output yourself and hope the artifact matches a creation rule.",
     sopsy:
-      "<code>sopsy secrets encrypt</code> writes a <code>.encrypted</code> artifact, auto-detecting the format — <code>.env</code>, <code>json</code>, <code>yaml</code>, <code>ini</code> — all encrypt <em>values only</em>; anything else as one blob.",
-    cmd: "sopsy secrets encrypt [file] -o file.encrypted",
+      "<code>sopsy encrypt</code> writes a <code>.encrypted</code> artifact, auto-detecting the format — <code>.env</code>, <code>json</code>, <code>yaml</code>, <code>ini</code> — all encrypt <em>values only</em>; anything else as one blob.",
+    cmd: "sopsy encrypt [file] -o file.encrypted",
   },
   {
     task: "Decrypt to stdout or a file",
     sops: "<code>sops --decrypt</code> with manual type flags, then redirect — easy to clobber the wrong file or leak plaintext to disk.",
     sopsy:
-      "<code>sopsy secrets decrypt</code> prints plaintext to stdout or writes it with <code>-o file</code>.",
-    cmd: "sopsy secrets decrypt file.encrypted [-o file]",
+      "<code>sopsy decrypt</code> prints plaintext to stdout or writes it with <code>-o file</code>.",
+    cmd: "sopsy decrypt file.encrypted [-o file]",
   },
   {
     task: "Know what's value-encryptable",

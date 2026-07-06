@@ -15,8 +15,8 @@ const cmds = [
   {
     kw: "sopsy",
     name: "join",
-    sub: "<name>",
-    p: "Self-service onboarding: generate your Secure Enclave key (Touch ID) and record a <code>pending</code> request in <code>.sopsy.yml</code>. Commit, open a PR, and ask any member to approve.",
+    sub: "<name> [-t]",
+    p: "Self-service onboarding (alias of <code>request-access</code>): generate your Secure Enclave key and record a <code>pending</code> request in <code>.sopsy.yml</code>. Commit, open a PR, and ask any member to approve. Pass <code>-t</code> / <code>--without-touch-id</code> to mint the key with no Touch ID gate — handy for <code>direnv</code> and many-window workflows.",
   },
   {
     kw: "sopsy",
@@ -38,9 +38,15 @@ const cmds = [
   },
   {
     kw: "sopsy",
-    name: "secrets",
-    sub: "encrypt · decrypt",
-    p: "One-shot, scriptable crypto outside the editor. <code>secrets encrypt</code> writes a <code>.encrypted</code> artifact (or stdout); <code>secrets decrypt</code> prints plaintext to stdout or <code>-o</code> a file — ideal for <code>direnv</code> and CI. Structured <code>.env</code>/yaml/json/ini encrypt values only; anything else as one blob.",
+    name: "encrypt · decrypt",
+    sub: "<file>",
+    p: "One-shot, scriptable crypto outside the editor. <code>sopsy encrypt</code> writes a <code>.encrypted</code> artifact (or stdout); <code>sopsy decrypt</code> prints plaintext to stdout or <code>-o</code> a file — ideal for <code>direnv</code> and CI. Structured <code>.env</code>/yaml/json/ini encrypt values only; anything else as one blob.",
+  },
+  {
+    kw: "sopsy",
+    name: "setup",
+    sub: "pre-commit · github-workflow",
+    p: "Wire up secret scanning. <code>setup pre-commit</code> installs a <code>lefthook</code> hook that runs <code>sopsy check</code>, <code>gitleaks</code>, and <code>detect-secrets</code> before every commit; <code>setup github-workflow</code> drops in a CI workflow that scans the whole repository — the gate that <code>--no-verify</code> can't skip.",
   },
   {
     kw: "sopsy",
@@ -69,8 +75,8 @@ const cmds = [
   {
     kw: "sopsy",
     name: "--help",
-    sub: "",
-    p: "A clap-based CLI: <code>sopsy --help</code> and <code>sopsy &lt;command&gt; --help</code> are always authoritative. Every interactive prompt has an equivalent flag.",
+    sub: "· global --git",
+    p: "A clap-based CLI: <code>sopsy --help</code> and <code>sopsy &lt;command&gt; --help</code> are always authoritative. Every interactive prompt has an equivalent flag. The global <code>--git</code> flag stages <em>exactly</em> the files a command changed and prints ready-to-paste commit + PR instructions — a no-op when nothing was modified.",
   },
 ];
 ---

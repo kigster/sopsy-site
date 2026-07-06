@@ -18,9 +18,11 @@ const invariants = [
         Seven invariants stand between you and a leak.
       </h2>
       <p class="section-lead">
-        <code class="mono lime">sopsy check</code> is the one command you want in
-        CI and in a pre-commit hook. It validates encrypted files by their on-disk
-        sops metadata — never by decrypting — so it needs <strong
+        <code class="mono lime">sopsy check</code> is the sops-hygiene gate for CI
+        and your pre-commit hook — it verifies the encryption discipline itself, and
+        pairs with content scanners like gitleaks (<a href="#prevent">below</a
+        >). It validates encrypted files by their on-disk sops metadata — never
+        by decrypting — so it needs <strong
           >no private key and no Secure Enclave</strong
         >. Drop it on a Linux runner and it just works.
       </p>
