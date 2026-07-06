@@ -71,12 +71,15 @@ const approver = [
       <span class="dot" aria-hidden="true"></span>
       <span
         >Add <code class="mono lime">--git</code> to any command that changes files
-        — <code class="mono">join</code>, <code class="mono">approve</code>,
-        <code class="mono">init</code>, <code class="mono">recipient</code> — and
-        sopsy <code class="mono">git add</code>s <em>exactly</em> the files it touched
-        (never your plaintext <code class="mono">.env</code>) and prints
-        ready-to-paste commit and pull-request commands. The secrets themselves
-        are written with the scriptable shorthand
+        — <code class="mono">init</code>, <code class="mono">join</code>,
+        <code class="mono">approve</code>, <code class="mono">edit</code>, and
+        every
+        <code class="mono">recipient</code> mutation — and sopsy <code
+          class="mono">git add</code
+        >s <em>exactly</em> the files it touched (never your plaintext <code
+          class="mono">.env</code
+        >) and prints ready-to-paste commit and pull-request commands. The
+        secrets themselves are written with the scriptable shorthand
         <code class="mono lime">sopsy encrypt .env -o .env.encrypted</code> — no editor
         required.</span
       >
