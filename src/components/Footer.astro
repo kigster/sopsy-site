@@ -1,4 +1,6 @@
 ---
+import { SOPSY_VERSION } from "../constants";
+
 const year = 2026;
 ---
 
@@ -69,15 +71,15 @@ const year = 2026;
       <span
         >© {year}
         <a href="https://kig.re/">Konstantin Gredeskoul</a> · MIT / Apache-2.0 · macOS-first
-        (v1.2.0)/span >
-        <span>
-          Built by <a
-            href="https://github.com/kigster"
-            target="_blank"
-            rel="noopener">@kigster</a
-          >
-          · sopsy orchestrates SOPS — it doesn't replace it.
-        </span>
+        (v{SOPSY_VERSION})</span
+      >
+      <span>
+        Built by <a
+          href="https://github.com/kigster"
+          target="_blank"
+          rel="noopener">@kigster</a
+        >
+        · sopsy orchestrates SOPS — it doesn't replace it.
       </span>
     </div>
   </div>

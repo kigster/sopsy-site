@@ -1,4 +1,6 @@
 ---
+import { SOPSY_VERSION } from "../constants";
+
 const repo = "https://github.com/kigster/sopsy";
 const crate = "https://crates.io/crates/sopsy";
 ---
@@ -7,7 +9,7 @@ const crate = "https://crates.io/crates/sopsy";
   <div class="container nav__inner">
     <a href={import.meta.env.BASE_URL} class="brand" aria-label="sopsy home">
       <span class="glyph" aria-hidden="true">🔒</span>
-      sopsy<small>v1.2.0</small>
+      sopsy<small>v{SOPSY_VERSION}</small>
     </a>
 
     <nav class="nav__links" id="nav-menu" aria-label="Primary">
