@@ -55,7 +55,11 @@ deploy: build
 
 # Run automated tests
 test:
-    @bun test tools/
+    @bun test
+
+# Run tests with coverage (text summary + coverage/lcov.info for Codecov)
+coverage:
+    @bun test --coverage --coverage-reporter=text --coverage-reporter=lcov
 
 # Print the version of sopsy site
 version: 
