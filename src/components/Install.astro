@@ -1,4 +1,6 @@
 ---
+import { SOPSY_VERSION } from "../constants";
+
 // Two install paths, lifted from ../sopsy/README.md "Install".
 const methods = [
   {
@@ -52,8 +54,8 @@ const methods = [
 
     <p class="install__note" data-reveal>
       <span class="lime">●</span>
-      macOS-first (v1.2.0). Homebrew installs the prebuilt binary and every prerequisite;
-      the Cargo path needs the Rust toolchain.
+      macOS-first (v{SOPSY_VERSION}). Homebrew installs the prebuilt binary and
+      every prerequisite; the Cargo path needs the Rust toolchain.
     </p>
   </div>
 </section>

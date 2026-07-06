@@ -1,5 +1,7 @@
 {
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"]
+  // `tests` runs under `bun test` (its own TS + bun:test types); astro check
+  // only type-checks the site, so keep the suite out of its surface.
+  "exclude": ["dist", "tests"]
 }

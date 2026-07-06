@@ -44,15 +44,9 @@ const cmds = [
   },
   {
     kw: "sopsy",
-    name: "setup",
-    sub: "pre-commit · github-workflow",
-    p: "Wire up secret scanning. <code>setup pre-commit</code> installs a <code>lefthook</code> hook that runs <code>sopsy check</code>, <code>gitleaks</code>, and <code>detect-secrets</code> before every commit; <code>setup github-workflow</code> drops in a CI workflow that scans the whole repository — the gate that <code>--no-verify</code> can't skip.",
-  },
-  {
-    kw: "sopsy",
-    name: "list-supported-types",
-    sub: "",
-    p: "Print the file formats sopsy understands and which extensions auto-detect to each: <code>dotenv</code>, <code>yaml</code>, <code>json</code>, <code>ini</code> (value-encrypted) plus <code>binary</code> (whole-file). Takes no flags.",
+    name: "types",
+    sub: "alias: list-supported-types",
+    p: "Print the file formats sopsy understands and which extensions auto-detect to each: <code>dotenv</code>, <code>yaml</code>, <code>json</code>, <code>ini</code> (value-encrypted) plus <code>binary</code> (whole-file). Takes no flags; the longer <code>list-supported-types</code> name still works.",
   },
   {
     kw: "sopsy",
