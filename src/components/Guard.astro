@@ -1,0 +1,86 @@
+---
+// Layered secret-scanning: sopsy setup wires lefthook (pre-commit) + a CI
+// workflow that run three complementary checks. The cards spell out how the
+// structural sopsy check differs from the content scanners.
+const checks = [
+  {
+    cls: "guard__card--check",
+    kbd: "sopsy check",
+    q: "Is the encryption intact?",
+    p: "The <em>structural</em> gate. Confirms sopsy's seven invariants — plaintext <code>.env</code> never tracked, every managed file genuinely encrypted, a break-glass recipient present. It knows <em>which</em> files must be encrypted, so it's deterministic and needs no key — but it doesn't read file contents looking for secret-shaped strings.",
+  },
+  {
+    cls: "guard__card--leaks",
+    kbd: "gitleaks",
+    q: "Does anything look like a token?",
+    p: "The <em>pattern</em> gate. Regex + entropy, git-aware. Catches known secret shapes — cloud keys, tokens, private keys — anywhere in your staged diff, including files sopsy never manages.",
+  },
+  {
+    cls: "guard__card--detect",
+    kbd: "detect-secrets",
+    q: "Anything new since we audited?",
+    p: "The <em>baseline</em> gate. Scans against a committed <code>.secrets.baseline</code> you triage once; only <em>new</em>, un-audited findings block the commit — so noise stays low and real leaks stand out.",
+  },
+];
+---
+
+<section class="section" id="prevent">
+  <div class="container">
+    <div data-reveal style="max-width:54ch">
+      <p class="eyebrow eyebrow--lime">Defense in depth</p>
+      <h2 class="section-title">Stop secrets before the commit ever lands.</h2>
+      <p class="section-lead">
+        Don't rely on remembering. <code class="mono lime"
+          >sopsy setup pre-commit</code
+        > installs a <code class="mono">lefthook</code> hook that runs three complementary
+        checks before every commit; <code class="mono lime"
+          >sopsy setup github-workflow</code
+        > adds a CI job that scans the entire repository.
+      </p>
+      <div class="guard__cmds">
+        <div class="copyfield">
+          <span class="sigil">$</span>
+          <span>sopsy setup pre-commit</span>
+          <button
+            data-copy="sopsy setup pre-commit"
+            aria-label="Copy pre-commit setup command">copy</button
+          >
+        </div>
+        <div class="copyfield">
+          <span class="sigil">$</span>
+          <span>sopsy setup github-workflow</span>
+          <button
+            data-copy="sopsy setup github-workflow"
+            aria-label="Copy workflow setup command">copy</button
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="guard__grid" data-reveal>
+      {
+        checks.map((c) => (
+          <article class={`guard__card ${c.cls}`}>
+            <span class="guard__kbd">{c.kbd}</span>
+            <h4>{c.q}</h4>
+            <p>
+              <Fragment set:html={c.p} />
+            </p>
+          </article>
+        ))
+      }
+    </div>
+
+    <p class="guard__foot" data-reveal>
+      <span class="dot" aria-hidden="true"></span>
+      <span
+        ><b>sopsy check</b> proves the sops workflow itself is correct;
+        <b>gitleaks</b> and <b>detect-secrets</b> read the content for secrets that
+        never went through sops at all. What one heuristic misses, another catches
+        — and because the pre-commit hook is advisory (<code class="mono"
+          >--no-verify</code
+        > skips it), the <b>github-workflow</b> is the gate that can't be bypassed.</span
+      >
+    </p>
+  </div>
+</section>

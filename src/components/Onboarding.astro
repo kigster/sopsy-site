@@ -1,0 +1,85 @@
+---
+// Mirrors the README "Encryption & Team Onboarding Flow" section: the real
+// two-person, same-branch join → approve dance, in actual terminal commands.
+const joiner = [
+  { c: "cmt", t: "# Alan Turing's MacBook — branch off main" },
+  { c: "prompt", t: "git checkout -b sopsy/add/alan-turing" },
+  { c: "cmt", t: "# request to join, and stage the change with --git" },
+  { c: "prompt", t: 'sopsy join "Alan Turing" --git' },
+  { c: "cmt", t: "# …trade the thumb for --without-touch-id" },
+  { c: "key", t: "  ➜ pending request written to .sopsy.yml" },
+  { c: "ok", t: "  ✔ git add .sopsy.yml .sopsy.sha — staged for you" },
+  { c: "info", t: "  ◇ ready-to-paste commit + PR printed below ↓" },
+  { c: "prompt", t: 'git commit -m "Request access" && git push' },
+];
+
+const approver = [
+  { c: "cmt", t: "# Any already-approved engineer — same branch" },
+  { c: "prompt", t: "git fetch && git checkout sopsy/add/alan-turing" },
+  { c: "cmt", t: "# vouch out of band, then approve + stage with --git" },
+  { c: "prompt", t: 'sopsy approve "Alan Turing" --git' },
+  { c: "cmt", t: "# …or bare `sopsy approve` to triage every request" },
+  { c: "ok", t: "  ✔ re-keyed every secret for the new recipient" },
+  { c: "ok", t: "  ✔ staged the re-keyed files — commit + PR printed" },
+  { c: "prompt", t: 'git commit -m "Approve Alan Turing" && git push' },
+  { c: "ok", t: "  ✔ merge the PR — Alan can now decrypt" },
+];
+---
+
+<section class="section" id="onboarding">
+  <div class="container">
+    <div data-reveal style="max-width:52ch">
+      <p class="eyebrow">Encryption &amp; team onboarding</p>
+      <h2 class="section-title">
+        Access is a pull request — and a human vouch.
+      </h2>
+      <p class="section-lead">
+        Every teammate must be <strong>admitted</strong> before they can decrypt.
+        A stranger who clones the repo, encrypted files and all, can never open them
+        — they were never added to the recipient set. The first encryptor is the <strong
+          >prime</strong
+        >, and holds the offline break-glass pair in a vault for the day every
+        laptop is lost.
+      </p>
+    </div>
+
+    <div class="onboard__cols" data-reveal>
+      <div class="terminal">
+        <div class="terminal__bar">
+          <div class="terminal__dots"><i></i><i></i><i></i></div>
+          <span class="terminal__title">newcomer · sopsy join</span>
+        </div>
+        <div class="terminal__body">
+          {joiner.map((l) => <span class={`ln ${l.c}`}>{l.t}</span>)}
+        </div>
+      </div>
+
+      <div class="onboard__arrow" aria-hidden="true">→</div>
+
+      <div class="terminal">
+        <div class="terminal__bar">
+          <div class="terminal__dots"><i></i><i></i><i></i></div>
+          <span class="terminal__title">member · sopsy approve</span>
+        </div>
+        <div class="terminal__body">
+          {approver.map((l) => <span class={`ln ${l.c}`}>{l.t}</span>)}
+        </div>
+      </div>
+    </div>
+
+    <p class="onboard__foot" data-reveal>
+      <span class="dot" aria-hidden="true"></span>
+      <span
+        >Add <code class="mono lime">--git</code> to any command that changes files
+        — <code class="mono">join</code>, <code class="mono">approve</code>,
+        <code class="mono">init</code>, <code class="mono">recipient</code> — and
+        sopsy <code class="mono">git add</code>s <em>exactly</em> the files it touched
+        (never your plaintext <code class="mono">.env</code>) and prints
+        ready-to-paste commit and pull-request commands. The secrets themselves
+        are written with the scriptable shorthand
+        <code class="mono lime">sopsy encrypt .env -o .env.encrypted</code> — no editor
+        required.</span
+      >
+    </p>
+  </div>
+</section>
