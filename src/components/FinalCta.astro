@@ -1,6 +1,10 @@
 ---
 // Homebrew first (the recommended, prebuilt route), then cargo.
-const installs = ["brew install kigster/tap/sopsy", "cargo install sopsy"];
+const installs = [
+  "brew trust kigster/tap",
+  "brew install kigster/tap/sopsy",
+  "cargo install sopsy",
+];
 const repo = "https://github.com/kigster/sopsy";
 
 const docs = [

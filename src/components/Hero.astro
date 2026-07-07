@@ -1,6 +1,10 @@
 ---
 // Two install paths — Homebrew first (the recommended, prebuilt route).
-const installs = ["brew install kigster/tap/sopsy", "cargo install sopsy"];
+const installs = [
+  "brew trust kigster/tap",
+  "brew install kigster/tap/sopsy",
+  "cargo install sopsy",
+];
 // Each terminal line gets an incremental reveal delay. A condensed,
 // faithful run of `sopsy init` — the age key is truncated to keep the
 // terminal from scrolling horizontally.
