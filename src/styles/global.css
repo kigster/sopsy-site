@@ -1864,6 +1864,11 @@ samp {
   margin-bottom: 1.2rem;
 }
 
+/* #demo anchor lands mid-section, so clear the 64px sticky nav. */
+#demo {
+  scroll-margin-top: 88px;
+}
+
 /* Full-width demo recording (currently the sopsy-demo.gif). */
 .qs__cast {
   width: 100%;
