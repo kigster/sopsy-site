@@ -24,9 +24,9 @@
 
   /* ----- type colors ----- */
   --bone: #ece8e1;
-  --bone-2: #c7c2b8;
-  --bone-dim: #8b867c;
-  --bone-faint: #5d5950;
+  --bone-2: #dedad2;
+  --bone-dim: #aba69b;
+  --bone-faint: #7d786e;
 
   /* ----- accents ----- */
   --rust: #ff5a30; /* primary — signal / rust */

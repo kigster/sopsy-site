@@ -1,0 +1,997 @@
+---
+// The opening animated diagram: five components (two hardware keys, sopsy,
+// the Git repo, and the dev secrets) and three scenarios that rewire them.
+// Every edge is drawn from its source to its target, so the dash flow and the
+// travelling packet always point the way the data moves. A small sequencer
+// in the <script> below lights one step at a time.
+
+type NodeId = "yubikey" | "enclave" | "sopsy" | "repo" | "secrets";
+type Kind = "key" | "git" | "data";
+
+interface Step {
+  from: NodeId;
+  to: NodeId;
+  kind: Kind;
+  lane: number; // parallel offset, so A→B and B→A never share a line
+  label: string; // short text drawn on the edge
+  text: string; // the caption beside the diagram
+}
+
+interface Scenario {
+  id: string;
+  tab: string;
+  title: string;
+  commands: string[];
+  idle: NodeId[]; // components not involved in this scenario
+  note?: string;
+  steps: Step[];
+}
+
+const scenarios: Scenario[] = [
+  {
+    id: "init",
+    tab: "Initialize",
+    title: "Grace bootstraps the repo with a YubiKey",
+    commands: ["sopsy init -s yubikey"],
+    idle: ["enclave"],
+    steps: [
+      {
+        from: "sopsy",
+        to: "yubikey",
+        kind: "key",
+        lane: -1,
+        label: "generate key in a PIV slot",
+        text: "sopsy asks the YubiKey to create a private key inside one of its PIV slots. Grace types her PIN and touches the key.",
+      },
+      {
+        from: "yubikey",
+        to: "sopsy",
+        kind: "key",
+        lane: 1,
+        label: "age1yubikey1… public key",
+        text: "Only the public recipient comes back. The private key never leaves the YubiKey.",
+      },
+      {
+        from: "sopsy",
+        to: "repo",
+        kind: "git",
+        lane: 0,
+        label: ".sops.yaml · .sopsy.yml · .sopsy.sha",
+        text: "sopsy writes the SOPS rules, the member list with Grace as admin, and a checksum that flags hand edits.",
+      },
+      {
+        from: "sopsy",
+        to: "secrets",
+        kind: "data",
+        lane: 0,
+        label: ".env.example · .env.encrypted",
+        text: "It seeds an encrypted .env.encrypted and gitignores the plaintext .env, so it can never be committed by mistake.",
+      },
+    ],
+  },
+  {
+    id: "join",
+    tab: "Join & approve",
+    title: "Alan joins with his Mac, Grace approves",
+    commands: ['sopsy join "Alan Turing"', 'sopsy approve "Alan Turing"'],
+    idle: [],
+    steps: [
+      {
+        from: "sopsy",
+        to: "enclave",
+        kind: "key",
+        lane: -1,
+        label: "mint key in the Secure Enclave",
+        text: "On Alan's Mac, sopsy join creates a key inside the Secure Enclave, unlocked by Touch ID.",
+      },
+      {
+        from: "enclave",
+        to: "sopsy",
+        kind: "key",
+        lane: 1,
+        label: "age1se1… public key",
+        text: "Alan's public recipient comes back. His private key stays in the chip.",
+      },
+      {
+        from: "sopsy",
+        to: "repo",
+        kind: "git",
+        lane: -1,
+        label: "pending request → pull request",
+        text: "His key lands in .sopsy.yml as pending, on a branch, and he opens a pull request. He has no access yet.",
+      },
+      {
+        from: "repo",
+        to: "sopsy",
+        kind: "git",
+        lane: 1,
+        label: "Grace checks out the branch",
+        text: "Grace, already a member, checks out the branch and runs sopsy approve.",
+      },
+      {
+        from: "yubikey",
+        to: "sopsy",
+        kind: "key",
+        lane: 0,
+        label: "PIN + touch unwraps the data key",
+        text: "Her YubiKey unwraps the file's data key after a PIN and a touch. No plaintext is written to disk.",
+      },
+      {
+        from: "sopsy",
+        to: "secrets",
+        kind: "data",
+        lane: 0,
+        label: "re-wrap for Alan (sops updatekeys)",
+        text: "sops re-wraps the data key for every member, now including Alan.",
+      },
+      {
+        from: "sopsy",
+        to: "repo",
+        kind: "git",
+        lane: 0,
+        label: "push · merge",
+        text: "Grace pushes the approval. Once the pull request merges, Alan can decrypt with Touch ID.",
+      },
+    ],
+  },
+  {
+    id: "encrypt",
+    tab: "Encrypt .env",
+    title: "Encrypt .env into .env.encrypted",
+    commands: ["sopsy encrypt .env -o .env.encrypted"],
+    idle: ["yubikey", "enclave"],
+    note: "No hardware needed: encryption uses public keys only.",
+    steps: [
+      {
+        from: "secrets",
+        to: "sopsy",
+        kind: "data",
+        lane: -1,
+        label: ".env (plaintext, local only)",
+        text: "sopsy reads the plaintext .env from your working copy. It is gitignored and never leaves your machine.",
+      },
+      {
+        from: "repo",
+        to: "sopsy",
+        kind: "git",
+        lane: 0,
+        label: "recipients from .sops.yaml",
+        text: "The recipients come from .sops.yaml: every member's public key plus the break-glass key.",
+      },
+      {
+        from: "sopsy",
+        to: "secrets",
+        kind: "data",
+        lane: 1,
+        label: ".env.encrypted (values only)",
+        text: "sops + age encrypt each value for every recipient. Names stay readable, so diffs and git blame still work.",
+      },
+      {
+        from: "secrets",
+        to: "repo",
+        kind: "git",
+        lane: 0,
+        label: "commit .env.encrypted",
+        text: "Commit .env.encrypted. sopsy check fails CI if a plaintext secret is ever tracked.",
+      },
+    ],
+  },
+];
+
+// ---- geometry (SVG user units) -------------------------------------------
+const W = 1000;
+const H = 560;
+const LANE = 18;
+
+const nodes: Record<NodeId, { x: number; y: number; hw: number; hh: number }> =
+  {
+    yubikey: { x: 170, y: 140, hw: 140, hh: 64 },
+    enclave: { x: 170, y: 420, hw: 140, hh: 64 },
+    sopsy: { x: 500, y: 280, hw: 100, hh: 84 },
+    repo: { x: 830, y: 140, hw: 140, hh: 64 },
+    secrets: { x: 830, y: 420, hw: 140, hh: 64 },
+  };
+
+interface Pt {
+  x: number;
+  y: number;
+}
+
+// Where an edge leaves `n` heading toward `t`: the left/right side for
+// horizontal links, the top/bottom for the vertical repo ↔ secrets link.
+function anchor(id: NodeId, toward: NodeId, lane: number): Pt {
+  const n = nodes[id];
+  const t = nodes[toward];
+  if (Math.abs(t.x - n.x) < 1) {
+    const dir = Math.sign(t.y - n.y);
+    return { x: n.x + lane * LANE, y: n.y + dir * n.hh };
+  }
+  const dir = Math.sign(t.x - n.x);
+  // sopsy fans its links out vertically so they don't all meet at one point
+  const spread = id === "sopsy" ? Math.sign(t.y - n.y) * 34 : 0;
+  return { x: n.x + dir * n.hw, y: n.y + spread + lane * LANE };
+}
+
+function geometry(s: Step) {
+  const p1 = anchor(s.from, s.to, s.lane);
+  const p2 = anchor(s.to, s.from, s.lane);
+  // pull the end back so the arrowhead sits just outside the target box
+  if (Math.abs(p1.x - p2.x) < 1) {
+    const dir = Math.sign(p2.y - p1.y);
+    p2.y -= dir * 10;
+    const d = `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
+    return { d, mid: { x: p1.x, y: (p1.y + p2.y) / 2 } };
+  }
+  const dir = Math.sign(p2.x - p1.x);
+  p2.x -= dir * 10;
+  const mx = (p1.x + p2.x) / 2;
+  const d = `M ${p1.x} ${p1.y} C ${mx} ${p1.y}, ${mx} ${p2.y}, ${p2.x} ${p2.y}`;
+  // cubic midpoint at t = 0.5 with control points (mx, y1) and (mx, y2)
+  const mid = { x: (p1.x + 6 * mx + p2.x) / 8, y: (p1.y + p2.y) / 2 };
+  return { d, mid };
+}
+
+const edges = scenarios.flatMap((sc) =>
+  sc.steps.map((s, i) => {
+    const g = geometry(s);
+    const label = `${i + 1} · ${s.label}`;
+    const lw = label.length * 8.6 + 32;
+    return {
+      ...s,
+      ...g,
+      id: `fd-${sc.id}-${i}`,
+      scenario: sc.id,
+      step: i,
+      text: label,
+      lw,
+      // one caption slot, top center, above every node
+      lx: W / 2 - lw / 2,
+      ly: 14,
+    };
+  }),
+);
+---
+
+<section class="fd" id="how" aria-labelledby="fd-title">
+  <div class="container">
+    <div class="fd__head" data-reveal>
+      <p class="eyebrow">
+        sopsy 2.0 · Secure Enclave · YubiKey · macOS + Linux
+      </p>
+      <h2 id="fd-title" class="fd__title">
+        Secrets live in Git. <em>Keys live in hardware.</em>
+      </h2>
+    </div>
+
+    <div class="fd__tabs" role="tablist" aria-label="sopsy scenarios">
+      {
+        scenarios.map((sc, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`fd-tab-${sc.id}`}
+            class="fd__tab"
+            aria-selected={i === 0 ? "true" : "false"}
+            aria-controls="fd-panel"
+            tabindex={i === 0 ? 0 : -1}
+            data-scenario={sc.id}
+          >
+            <span class="fd__tabnum">{i + 1}</span>
+            {sc.tab}
+          </button>
+        ))
+      }
+    </div>
+
+    <div
+      class="fd__stage"
+      id="fd-panel"
+      role="tabpanel"
+      aria-labelledby="fd-tab-init"
+      data-state="init"
+    >
+      <svg
+        class="fd__svg"
+        viewBox={`0 0 ${W} ${H}`}
+        role="img"
+        aria-labelledby="fd-svg-title"
+      >
+        <title id="fd-svg-title">
+          How sopsy connects hardware keys, the Git repository, and your secrets
+        </title>
+        <defs>
+          {
+            (["key", "git", "data"] as Kind[]).map((k) => (
+              <marker
+                id={`fd-arrow-${k}`}
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M0 0 L10 5 L0 10 z" class={`fd__head--${k}`} />
+              </marker>
+            ))
+          }
+          <radialGradient id="fd-glow">
+            <stop offset="0" stop-color="var(--rust)" stop-opacity="0.35"
+            ></stop>
+            <stop offset="1" stop-color="var(--rust)" stop-opacity="0"></stop>
+          </radialGradient>
+        </defs>
+
+        <!-- edges -->
+        <g class="fd__edges">
+          {
+            edges.map((e) => (
+              <g
+                class={`fd__edge fd__edge--${e.kind}`}
+                data-scenario={e.scenario}
+                data-step={e.step}
+                data-from={e.from}
+                data-to={e.to}
+              >
+                <path id={e.id} class="fd__track" d={e.d} />
+                <path
+                  class="fd__flow"
+                  d={e.d}
+                  marker-end={`url(#fd-arrow-${e.kind})`}
+                />
+                <circle class="fd__packet" r="7" cx="0" cy="0">
+                  <animateMotion
+                    dur="1.3s"
+                    begin="indefinite"
+                    fill="freeze"
+                    calcMode="spline"
+                    keyTimes="0;1"
+                    keySplines="0.45 0 0.25 1"
+                  >
+                    <mpath href={`#${e.id}`} />
+                  </animateMotion>
+                </circle>
+              </g>
+            ))
+          }
+        </g>
+
+        <!-- nodes -->
+        <g class="fd__nodes">
+          <g class="fd__node fd__node--hw" data-node="yubikey">
+            <rect x="30" y="76" width="280" height="128" rx="14"></rect>
+            <g class="fd__icon" transform="translate(57 108)">
+              <rect width="26" height="44" rx="6"></rect>
+              <circle cx="13" cy="30" r="6"></circle>
+              <rect x="7" y="-10" width="12" height="12" rx="2"></rect>
+            </g>
+            <text x="103" y="124" class="fd__name">YubiKey</text>
+            <text x="103" y="148" class="fd__meta">Grace · PIV slot</text>
+            <text x="103" y="170" class="fd__meta">PIN + touch</text>
+          </g>
+
+          <g class="fd__node fd__node--hw" data-node="enclave">
+            <rect x="30" y="356" width="280" height="128" rx="14"></rect>
+            <g class="fd__icon" transform="translate(51 392)">
+              <rect width="38" height="38" rx="8"></rect>
+              <rect x="10" y="10" width="18" height="18" rx="3"></rect>
+              <path
+                d="M6 -6 v6 M19 -6 v6 M32 -6 v6 M6 38 v6 M19 38 v6 M32 38 v6"
+              ></path>
+            </g>
+            <text x="103" y="404" class="fd__name">Secure Enclave</text>
+            <text x="103" y="428" class="fd__meta">Alan · Apple Silicon</text>
+            <text x="103" y="450" class="fd__meta">Touch ID</text>
+          </g>
+
+          <g class="fd__node fd__node--core" data-node="sopsy">
+            <circle
+              cx="500"
+              cy="280"
+              r="150"
+              fill="url(#fd-glow)"
+              class="fd__aura"></circle>
+            <rect x="400" y="196" width="200" height="168" rx="20"></rect>
+            <g class="fd__icon" transform="translate(481 220)">
+              <path d="M8 22 v-8 a11 11 0 0 1 22 0 v8"></path>
+              <rect x="2" y="22" width="34" height="26" rx="5"></rect>
+            </g>
+            <text
+              x="500"
+              y="306"
+              text-anchor="middle"
+              class="fd__name fd__name--core">sopsy</text
+            >
+            <text x="500" y="332" text-anchor="middle" class="fd__meta"
+              >sops + age</text
+            >
+          </g>
+
+          <g class="fd__node" data-node="repo">
+            <rect x="690" y="76" width="280" height="128" rx="14"></rect>
+            <g class="fd__icon" transform="translate(715 104)">
+              <circle cx="8" cy="8" r="6"></circle>
+              <circle cx="8" cy="44" r="6"></circle>
+              <circle cx="32" cy="22" r="6"></circle>
+              <path d="M8 14 v24 M8 30 c0 -8 24 -2 24 -2"></path>
+            </g>
+            <text x="765" y="124" class="fd__name">Git repo</text>
+            <text x="765" y="148" class="fd__meta">.sops.yaml</text>
+            <text x="765" y="170" class="fd__meta">.sopsy.yml · PRs</text>
+          </g>
+
+          <g class="fd__node" data-node="secrets">
+            <rect x="690" y="356" width="280" height="128" rx="14"></rect>
+            <g class="fd__icon" transform="translate(717 388)">
+              <path d="M0 0 h22 l10 10 v38 h-32 z"></path>
+              <path d="M7 22 h18 M7 30 h18 M7 38 h12"></path>
+            </g>
+            <text x="765" y="404" class="fd__name">Dev secrets</text>
+            <text x="765" y="428" class="fd__meta fd__meta--plain"
+              >.env (local)</text
+            >
+            <text x="765" y="450" class="fd__meta fd__meta--enc"
+              >.env.encrypted</text
+            >
+          </g>
+        </g>
+
+        <!-- step captions: drawn last so nothing covers them -->
+        <g class="fd__labels">
+          {
+            edges.map((e) => (
+              <g
+                class={`fd__label fd__edge--${e.kind}`}
+                data-scenario={e.scenario}
+                data-step={e.step}
+                transform={`translate(${e.lx} ${e.ly})`}
+              >
+                <rect width={e.lw} height="34" rx="17" />
+                <text x={e.lw / 2} y="23" text-anchor="middle">
+                  {e.text}
+                </text>
+              </g>
+            ))
+          }
+        </g>
+
+        <text
+          x="170"
+          y="526"
+          text-anchor="middle"
+          class="fd__note"
+          data-note="encrypt"
+        >
+          No hardware needed to encrypt
+        </text>
+      </svg>
+
+      <div class="fd__side">
+        {
+          scenarios.map((sc, si) => (
+            <div class="fd__script" data-scenario={sc.id} hidden={si !== 0}>
+              <h3 class="fd__stitle">{sc.title}</h3>
+              <div class="fd__cmds">
+                {sc.commands.map((c) => (
+                  <code>
+                    <span class="sigil">$</span> {c}
+                  </code>
+                ))}
+              </div>
+              <ol class="fd__steps">
+                {sc.steps.map((s, i) => (
+                  <li data-step={i} class={`fd__step fd__step--${s.kind}`}>
+                    {s.text}
+                  </li>
+                ))}
+              </ol>
+              {sc.note && <p class="fd__snote">{sc.note}</p>}
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const STEP_MS = 1900;
+  const HOLD_MS = 3200;
+
+  const stage = document.querySelector<HTMLElement>(".fd__stage");
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>(".fd__tab")];
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (stage && tabs.length) {
+    const order = tabs.map((t) => t.dataset.scenario!);
+    let state = order[0];
+    let step = -1;
+    let timer: number | undefined;
+    let visible = false;
+    let pinned = false; // the visitor picked a tab: loop it, stop touring
+
+    const edgesOf = (s: string) => [
+      ...stage.querySelectorAll<SVGGElement>(`.fd__edge[data-scenario="${s}"]`),
+    ];
+    const stepsOf = (s: string) => [
+      ...stage.querySelectorAll<HTMLLIElement>(
+        `.fd__script[data-scenario="${s}"] .fd__step`,
+      ),
+    ];
+
+    function paint() {
+      const edges = edgesOf(state);
+      const items = stepsOf(state);
+      const hot = new Set<string>();
+      stage
+        .querySelectorAll<SVGGElement>(".fd__label")
+        .forEach((l) =>
+          l.classList.toggle(
+            "is-active",
+            !reduced &&
+              l.dataset.scenario === state &&
+              Number(l.dataset.step) === step,
+          ),
+        );
+      edges.forEach((e, i) => {
+        const active = reduced || i === step;
+        e.classList.toggle("is-active", !reduced && active);
+        e.classList.toggle("is-done", reduced || i < step);
+        if (i === step && !reduced) {
+          hot.add(e.dataset.from!);
+          hot.add(e.dataset.to!);
+          e.querySelector<SVGAnimationElement>("animateMotion")?.beginElement();
+        }
+      });
+      items.forEach((li, i) => {
+        li.classList.toggle("is-active", !reduced && i === step);
+        li.classList.toggle("is-done", reduced || i < step);
+      });
+      stage
+        .querySelectorAll<SVGGElement>(".fd__node")
+        .forEach((n) => n.classList.toggle("is-hot", hot.has(n.dataset.node!)));
+    }
+
+    function select(next: string, focus = false) {
+      state = next;
+      step = -1;
+      stage.dataset.state = next;
+      stage.setAttribute("aria-labelledby", `fd-tab-${next}`);
+      tabs.forEach((t) => {
+        const on = t.dataset.scenario === next;
+        t.setAttribute("aria-selected", String(on));
+        t.tabIndex = on ? 0 : -1;
+        if (on && focus) t.focus();
+      });
+      stage
+        .querySelectorAll<HTMLElement>(".fd__script")
+        .forEach((s) => (s.hidden = s.dataset.scenario !== next));
+      stage
+        .querySelectorAll<SVGGElement>(".fd__edge")
+        .forEach((e) => e.classList.remove("is-active", "is-done"));
+      paint();
+      schedule(reduced ? 0 : 400);
+    }
+
+    function tick() {
+      const total = edgesOf(state).length;
+      if (step < total - 1) {
+        step++;
+        paint();
+        schedule(step === total - 1 ? HOLD_MS : STEP_MS);
+        return;
+      }
+      // the scenario finished: tour to the next tab, or replay a pinned one
+      if (!pinned) select(order[(order.indexOf(state) + 1) % order.length]);
+      else select(state);
+    }
+
+    function schedule(ms: number) {
+      clearTimeout(timer);
+      if (reduced || !visible || document.hidden) return;
+      timer = window.setTimeout(tick, ms);
+    }
+
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => {
+        pinned = true;
+        select(t.dataset.scenario!);
+      });
+      t.addEventListener("keydown", (e) => {
+        const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (!d) return;
+        e.preventDefault();
+        pinned = true;
+        select(order[(i + d + order.length) % order.length], true);
+      });
+    });
+
+    new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible) schedule(300);
+        else clearTimeout(timer);
+      },
+      { threshold: 0.25 },
+    ).observe(stage);
+
+    document.addEventListener("visibilitychange", () => schedule(300));
+
+    select(state);
+  }
+</script>
+
+<style>
+  .fd {
+    padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem);
+  }
+  .fd__title {
+    font-size: var(--step-3);
+    margin-top: 0.8rem;
+    max-width: 22ch;
+  }
+  .fd__title em {
+    font-style: normal;
+    color: var(--lime);
+  }
+
+  /* ----- tabs ----- */
+  .fd__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-block: 1.8rem 1.2rem;
+  }
+  .fd__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font: 600 var(--step-0) / 1 var(--font-display);
+    color: var(--bone-dim);
+    background: var(--ink-2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.7rem 1.2rem 0.7rem 0.7rem;
+    cursor: pointer;
+    transition:
+      color 0.2s,
+      border-color 0.2s,
+      background 0.2s;
+  }
+  .fd__tab:hover {
+    color: var(--bone);
+    border-color: var(--line-hot);
+  }
+  .fd__tab:focus-visible {
+    outline: 2px solid var(--rust);
+    outline-offset: 3px;
+  }
+  .fd__tab[aria-selected="true"] {
+    color: var(--bone);
+    background: var(--ink-3);
+    border-color: var(--rust);
+  }
+  .fd__tabnum {
+    display: grid;
+    place-items: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    font: 700 0.8rem/1 var(--font-mono);
+    background: var(--ink-4);
+    color: var(--bone-2);
+  }
+  .fd__tab[aria-selected="true"] .fd__tabnum {
+    background: var(--rust);
+    color: var(--ink);
+  }
+
+  /* ----- stage ----- */
+  .fd__stage {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1rem, 2.5vw, 2rem);
+    align-items: start;
+    background: color-mix(in srgb, var(--ink-1) 80%, transparent);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: clamp(0.8rem, 2vw, 1.6rem);
+  }
+  .fd__script {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: 0.4rem 2rem;
+    border-top: 1px solid var(--line-soft);
+    padding-top: 1.2rem;
+  }
+  .fd__script[hidden] {
+    display: none;
+  }
+  .fd__script .fd__steps,
+  .fd__script .fd__snote {
+    grid-column: 2;
+  }
+  .fd__script .fd__stitle,
+  .fd__script .fd__cmds {
+    grid-column: 1;
+  }
+  .fd__steps {
+    grid-row: 1 / span 3;
+  }
+  @media (max-width: 760px) {
+    .fd__script {
+      grid-template-columns: 1fr;
+    }
+    .fd__script > * {
+      grid-column: 1 !important;
+      grid-row: auto !important;
+    }
+  }
+  .fd__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  /* nodes */
+  .fd__node > rect {
+    fill: var(--ink-2);
+    stroke: var(--line);
+    stroke-width: 1.5;
+    transition:
+      stroke 0.35s,
+      fill 0.35s,
+      opacity 0.35s;
+  }
+  .fd__node--core > rect {
+    fill: var(--ink-3);
+    stroke: var(--line-hot);
+    stroke-width: 2;
+  }
+  .fd__node.is-hot > rect {
+    stroke: var(--rust);
+    fill: var(--ink-3);
+  }
+  .fd__node--hw.is-hot > rect {
+    stroke: var(--lime);
+  }
+  .fd__icon * {
+    fill: none;
+    stroke: var(--bone-dim);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.35s;
+  }
+  .fd__node--hw .fd__icon * {
+    stroke: var(--lime);
+  }
+  .fd__node--core .fd__icon * {
+    stroke: var(--rust);
+  }
+  .fd__name {
+    font: 700 24px var(--font-display);
+    fill: var(--bone);
+    letter-spacing: -0.01em;
+  }
+  .fd__name--core {
+    font-size: 34px;
+  }
+  .fd__meta {
+    font: 500 15px var(--font-mono);
+    fill: var(--bone-dim);
+  }
+  .fd__meta--plain {
+    fill: var(--rose);
+  }
+  .fd__meta--enc {
+    fill: var(--lime);
+  }
+  .fd__aura {
+    opacity: 0.6;
+    animation: fd-breathe 4s ease-in-out infinite;
+    transform-origin: 500px 280px;
+  }
+  @keyframes fd-breathe {
+    50% {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+  }
+  .fd__node {
+    transition: opacity 0.4s;
+  }
+  .fd__stage[data-state="init"] [data-node="enclave"],
+  .fd__stage[data-state="encrypt"] [data-node="yubikey"],
+  .fd__stage[data-state="encrypt"] [data-node="enclave"] {
+    opacity: 0.32;
+  }
+  .fd__note {
+    font: 500 15px var(--font-mono);
+    fill: var(--amber);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .fd__stage[data-state="encrypt"] .fd__note {
+    opacity: 1;
+  }
+
+  /* edges: hidden unless they belong to the current scenario */
+  .fd__edge {
+    opacity: 0;
+    transition: opacity 0.35s;
+    --c: var(--bone-dim);
+  }
+  .fd__edge--key {
+    --c: var(--lime);
+  }
+  .fd__edge--git {
+    --c: var(--blue);
+  }
+  .fd__edge--data {
+    --c: var(--rust);
+  }
+  .fd__stage[data-state="init"] .fd__edge[data-scenario="init"],
+  .fd__stage[data-state="join"] .fd__edge[data-scenario="join"],
+  .fd__stage[data-state="encrypt"] .fd__edge[data-scenario="encrypt"] {
+    opacity: 1;
+  }
+  .fd__track {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 2;
+  }
+  .fd__flow {
+    fill: none;
+    stroke: var(--c);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 7 9;
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+  .fd__edge.is-done .fd__flow {
+    opacity: 0.4;
+    animation: fd-flow 1.6s linear infinite;
+  }
+  .fd__edge.is-active .fd__flow {
+    opacity: 1;
+    stroke-width: 3.5;
+    animation: fd-flow 0.7s linear infinite;
+    filter: drop-shadow(0 0 6px var(--c));
+  }
+  /* negative offset moves dashes from the path start to its end */
+  @keyframes fd-flow {
+    to {
+      stroke-dashoffset: -32;
+    }
+  }
+  .fd__head--key {
+    fill: var(--lime);
+  }
+  .fd__head--git {
+    fill: var(--blue);
+  }
+  .fd__head--data {
+    fill: var(--rust);
+  }
+  .fd__packet {
+    fill: var(--c);
+    opacity: 0;
+    filter: drop-shadow(0 0 8px var(--c));
+  }
+  .fd__edge.is-active .fd__packet {
+    opacity: 1;
+  }
+  .fd__label {
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .fd__label rect {
+    fill: var(--ink-4);
+    stroke: var(--c);
+    stroke-width: 1.2;
+  }
+  .fd__label text {
+    font: 600 15px var(--font-mono);
+    fill: var(--bone);
+  }
+  .fd__label.is-active {
+    opacity: 1;
+  }
+
+  /* ----- side script ----- */
+  .fd__stitle {
+    font-size: var(--step-1);
+    line-height: 1.2;
+    margin-bottom: 0.8rem;
+  }
+  .fd__cmds {
+    display: grid;
+    gap: 0.4rem;
+    margin-bottom: 1.1rem;
+  }
+  .fd__cmds code {
+    font: 500 var(--step--1) var(--font-mono);
+    color: var(--lime);
+    background: var(--ink-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0.45rem 0.7rem;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .fd__cmds .sigil {
+    color: var(--rust);
+  }
+  .fd__steps {
+    list-style: none;
+    counter-reset: fd;
+    display: grid;
+    gap: 0.35rem;
+  }
+  .fd__step {
+    counter-increment: fd;
+    position: relative;
+    padding: 0.5rem 0.6rem 0.5rem 2.4rem;
+    border-radius: var(--radius);
+    font-size: var(--step--1);
+    line-height: 1.45;
+    color: var(--bone-faint);
+    border-left: 2px solid transparent;
+    transition:
+      color 0.3s,
+      background 0.3s,
+      border-color 0.3s;
+  }
+  .fd__step::before {
+    content: counter(fd);
+    position: absolute;
+    left: 0.6rem;
+    top: 0.5rem;
+    width: 1.3rem;
+    height: 1.3rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font: 700 0.7rem/1 var(--font-mono);
+    background: var(--ink-4);
+    color: var(--bone-dim);
+  }
+  .fd__step--key {
+    --c: var(--lime);
+  }
+  .fd__step--git {
+    --c: var(--blue);
+  }
+  .fd__step--data {
+    --c: var(--rust);
+  }
+  .fd__step.is-done {
+    color: var(--bone-dim);
+  }
+  .fd__step.is-active {
+    color: var(--bone);
+    background: var(--ink-3);
+    border-left-color: var(--c);
+  }
+  .fd__step.is-active::before,
+  .fd__step.is-done::before {
+    background: var(--c);
+    color: var(--ink);
+  }
+  .fd__snote {
+    margin-top: 0.9rem;
+    font: 500 var(--step--1) var(--font-mono);
+    color: var(--amber);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fd__aura,
+    .fd__edge .fd__flow {
+      animation: none !important;
+    }
+  }
+</style>
