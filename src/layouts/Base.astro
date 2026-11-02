@@ -55,7 +55,7 @@ const {
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta name="theme-color" content="#08080a" />
+    <meta name="theme-color" content="#121318" />
 
     <link
       rel="icon"
@@ -104,7 +104,7 @@ const {
             "aria-label",
             t === "light" ? "Switch to dark theme" : "Switch to light theme",
           );
-          meta?.setAttribute("content", t === "light" ? "#faf7f1" : "#08080a");
+          meta?.setAttribute("content", t === "light" ? "#faf7f1" : "#121318");
         };
         sync(root.getAttribute("data-theme") ?? "dark");
         btn?.addEventListener("click", () => {

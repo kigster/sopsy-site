@@ -10,12 +10,14 @@
 }
 
 :root {
+  color-scheme: dark;
+
   /* ----- ink / surfaces ----- */
-  --ink: #08080a;
-  --ink-1: #0b0b0f;
-  --ink-2: #111118;
-  --ink-3: #181821;
-  --ink-4: #21212c;
+  --ink: #121318;
+  --ink-1: #16171d;
+  --ink-2: #1b1c24;
+  --ink-3: #22232d;
+  --ink-4: #2b2c38;
   --line: rgba(236, 232, 225, 0.1);
   --line-soft: rgba(236, 232, 225, 0.055);
   --line-hot: rgba(255, 90, 48, 0.42);
@@ -695,7 +697,7 @@ samp {
   top: 0;
   z-index: 100;
   backdrop-filter: blur(14px);
-  background: rgba(8, 8, 10, 0.72);
+  background: rgba(18, 19, 24, 0.72);
   border-bottom: 1px solid var(--line-soft);
 }
 .nav__inner {
