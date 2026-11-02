@@ -790,15 +790,7 @@ const edges = scenarios.flatMap((sc) =>
     fill: var(--lime);
   }
   .fd__aura {
-    opacity: 0.6;
-    animation: fd-breathe 4s ease-in-out infinite;
-    transform-origin: 500px 280px;
-  }
-  @keyframes fd-breathe {
-    50% {
-      opacity: 1;
-      transform: scale(1.06);
-    }
+    opacity: 0.8;
   }
   .fd__node {
     transition: opacity 0.4s;
@@ -854,13 +846,11 @@ const edges = scenarios.flatMap((sc) =>
   }
   .fd__edge.is-done .fd__flow {
     opacity: 0.4;
-    animation: fd-flow 1.6s linear infinite;
   }
   .fd__edge.is-active .fd__flow {
     opacity: 1;
     stroke-width: 3.5;
     animation: fd-flow 0.7s linear infinite;
-    filter: drop-shadow(0 0 6px var(--c));
   }
   /* negative offset moves dashes from the path start to its end */
   @keyframes fd-flow {
@@ -880,7 +870,9 @@ const edges = scenarios.flatMap((sc) =>
   .fd__packet {
     fill: var(--c);
     opacity: 0;
-    filter: drop-shadow(0 0 8px var(--c));
+    stroke: var(--c);
+    stroke-opacity: 0.3;
+    stroke-width: 8;
   }
   .fd__edge.is-active .fd__packet {
     opacity: 1;
@@ -990,7 +982,6 @@ const edges = scenarios.flatMap((sc) =>
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .fd__aura,
     .fd__edge .fd__flow {
       animation: none !important;
     }
