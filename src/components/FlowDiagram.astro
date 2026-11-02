@@ -498,11 +498,12 @@ const edges = scenarios.flatMap((sc) =>
   const STEP_MS = 1900;
   const HOLD_MS = 3200;
 
-  const stage = document.querySelector<HTMLElement>(".fd__stage");
+  const stageEl = document.querySelector<HTMLElement>(".fd__stage");
   const tabs = [...document.querySelectorAll<HTMLButtonElement>(".fd__tab")];
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  if (stage && tabs.length) {
+  if (stageEl && tabs.length) {
+    const stage: HTMLElement = stageEl;
     const order = tabs.map((t) => t.dataset.scenario!);
     let state = order[0];
     let step = -1;
