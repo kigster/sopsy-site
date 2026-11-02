@@ -6,7 +6,7 @@ developer experience for [SOPS](https://github.com/getsops/sops)*.
 Built with [Astro 7](https://astro.build): a static, zero-JS-by-default site with a
 sprinkle of vanilla JavaScript only where it earns its keep (clipboard copy buttons,
 scroll-reveal). The design is a bold-maximal "cryptographic terminal" aesthetic —
-near-black canvas, rust-orange and acid-lime accents, set in Syne / Hanken Grotesk /
+near-black canvas, rust-orange and acid-lime accents, set in Inter / Nunito /
 JetBrains Mono.
 
 This project uses [**Bun**](https://bun.com) as its package manager and task runner.

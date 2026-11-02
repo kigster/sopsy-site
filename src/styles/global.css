@@ -2,7 +2,7 @@
    sopsy.dev — design system
    Aesthetic: "cryptographic terminal" — near-black vault, bone type,
    rust signal-orange primary, acid-lime "secure" accent. Bold maximal.
-   Type: Syne (display) · Hanken Grotesk (body) · JetBrains Mono (code/labels)
+   Type: Inter (display) · Nunito (body) · JetBrains Mono (code/labels)
    ========================================================================= */
 
 @font-face {
@@ -51,8 +51,8 @@
   --radius: 4px;
   --radius-lg: 8px;
 
-  --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Nunito", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
