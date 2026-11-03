@@ -50,3 +50,13 @@ describe("layout", () => {
     expect(css).toContain("--container: 1298px;");
   });
 });
+
+describe("marquee", () => {
+  it("caps the scrolling text at 1400px inside a full-bleed band", async () => {
+    const marquee = await read("src/components/Marquee.astro");
+    expect(marquee).toContain('<div class="marquee__viewport">');
+    expect(css).toMatch(
+      /\.marquee__viewport \{\s*max-width: 1400px;\s*margin-inline: auto;\s*overflow: hidden;/,
+    );
+  });
+});

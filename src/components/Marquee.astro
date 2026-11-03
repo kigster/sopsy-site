@@ -20,15 +20,18 @@ const items = [
 const track = [...items, ...items];
 ---
 
+<!-- The band stays full-bleed; the scrolling text is capped in .marquee__viewport. -->
 <div class="marquee" aria-hidden="true">
-  <div class="marquee__track">
-    {
-      track.map((t) => (
-        <span class="marquee__item">
-          <span class="marquee__sep">✦</span>
-          <b>{t}</b>
-        </span>
-      ))
-    }
+  <div class="marquee__viewport">
+    <div class="marquee__track">
+      {
+        track.map((t) => (
+          <span class="marquee__item">
+            <span class="marquee__sep">✦</span>
+            <b>{t}</b>
+          </span>
+        ))
+      }
+    </div>
   </div>
 </div>
