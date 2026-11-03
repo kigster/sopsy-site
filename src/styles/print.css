@@ -1,0 +1,215 @@
+/* =========================================================================
+   Print: the page as plain documentation. Black on white whatever the
+   theme, no decoration, no motion, nothing clipped. Loaded on every page by
+   Base.astro; everything sits inside @media print so screens never see it.
+   ========================================================================= */
+@media print {
+  @page {
+    margin: 16mm 14mm;
+  }
+
+  /* -- colors: override the theme tokens for both themes ---------------- */
+  :root,
+  :root[data-theme="light"],
+  :root[data-theme="dark"] {
+    color-scheme: light;
+    --ink: #fff;
+    --ink-1: #fff;
+    --ink-2: #fff;
+    --ink-3: #fff;
+    --ink-4: #fff;
+    --line: #bbb;
+    --line-soft: #ddd;
+    --line-hot: #bbb;
+    --bone: #000;
+    --bone-2: #000;
+    --bone-dim: #000;
+    --bone-faint: #333;
+    --rust: #000;
+    --rust-deep: #000;
+    --lime: #000;
+    --lime-deep: #000;
+    --blue: #000;
+    --amber: #000;
+    --rose: #000;
+  }
+
+  *,
+  *::before,
+  *::after {
+    color: #000 !important;
+    -webkit-text-fill-color: #000 !important;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    mix-blend-mode: normal !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  html,
+  body {
+    background: #fff !important;
+    font-size: 11pt;
+  }
+  body::before,
+  body::after {
+    display: none !important;
+  }
+
+  /* -- show everything: no motion state, no clipping, no fixed boxes ----- */
+  [data-reveal],
+  .reveal-lines .ln,
+  .checkitem {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  * {
+    position: static !important;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+  .container {
+    max-width: none !important;
+    padding-inline: 0 !important;
+  }
+  .section,
+  .hero {
+    padding-block: 1.2rem !important;
+    min-height: 0 !important;
+  }
+
+  /* -- hide what does not help on paper ---------------------------------- */
+  .nav,
+  .nav__burger,
+  .theme-toggle,
+  .marquee,
+  .fd,
+  .hero__cmds,
+  .hero__actions,
+  .hero .terminal,
+  .hero__foot,
+  .qs__cast,
+  .qs__cast-title,
+  .vault,
+  .keyflow__pulse,
+  .keyflow__link,
+  .onboard__arrow,
+  .copyfield button,
+  .btn,
+  .finalcta,
+  .footer__top,
+  .dot,
+  .feature__icon,
+  .feature__tag,
+  .eyebrow::before,
+  .terminal__dots,
+  img[src$=".gif"] {
+    display: none !important;
+  }
+
+  /* footer: one line */
+  .footer {
+    padding: 0.6rem 0 0 !important;
+    border-top: 1px solid #bbb !important;
+    font-size: 8pt;
+  }
+  .footer__bottom {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+  .footer__bottom > span + span {
+    display: none !important;
+  }
+
+  /* -- code: wrap instead of cutting off ---------------------------------- */
+  pre,
+  code,
+  .copyfield,
+  .copyfield span,
+  .terminal__body,
+  .terminal__body .ln {
+    white-space: pre-wrap !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  .copyfield,
+  .terminal,
+  pre {
+    display: block !important;
+    width: auto !important;
+    border: 1px solid #bbb !important;
+    border-radius: 3px;
+    padding: 0.4rem 0.6rem !important;
+    margin-block: 0.3rem;
+  }
+  .terminal__bar {
+    border-bottom: 1px solid #ddd !important;
+  }
+
+  /* grids collapse to one readable column */
+  .hero__cols,
+  .qs__wrap,
+  .flow__wrap,
+  .enclave__grid,
+  .ci__wrap,
+  .onboard__cols,
+  .breakglass__grid,
+  .versus__head,
+  .statement__cols {
+    display: block !important;
+  }
+
+  /* -- pagination ----------------------------------------------------------- */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  .eyebrow {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  pre,
+  table,
+  [role="table"],
+  figure,
+  li,
+  .terminal,
+  .copyfield,
+  .feature,
+  .new__card,
+  .team__card,
+  .guard__card,
+  .cmd,
+  .versus__row,
+  .policy__row,
+  .checkitem,
+  .install__card,
+  .doccard,
+  .keyflow__node,
+  .flownode {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* -- external links print their URL; in-page anchors do not ----------- */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    font-weight: 400;
+    word-break: break-all;
+  }
+  a[href^="#"]::after,
+  a[href^="/"]::after {
+    content: none !important;
+  }
+}
