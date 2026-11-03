@@ -1,4 +1,5 @@
 ---
+import { routeHref } from "../routes";
 // Homebrew first (the recommended, prebuilt route), then cargo.
 const installs = ["brew install kigster/tap/sopsy", "cargo install sopsy"];
 const repo = "https://github.com/kigster/sopsy";
@@ -76,7 +77,9 @@ const docs = [
       <a class="btn btn--primary" href={repo} target="_blank" rel="noopener"
         >Star on GitHub ↗</a
       >
-      <a class="btn btn--ghost" href="#quickstart">Read the quick start</a>
+      <a class="btn btn--ghost" href={routeHref("start")}
+        >Read the quick start</a
+      >
     </div>
   </div>
 </section>

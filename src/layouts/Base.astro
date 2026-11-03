@@ -2,20 +2,27 @@
 import "../styles/global.css";
 // Print rules live in their own @media print block, so every page prints as docs.
 import "../styles/print.css";
+import { ClientRouter, fade } from "astro:transitions";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
 
 interface Props {
   title?: string;
   description?: string;
+  /** Keep the page out of search results (e.g. /print duplicates every route). */
+  noindex?: boolean;
 }
 
 const {
   title = "sopsy — encrypted team secrets in Git, unlocked with Touch ID or a YubiKey",
   description = "A Rust CLI that keeps your team's API keys and .env secrets encrypted in Git. Hardware keys in the macOS Secure Enclave or a YubiKey, a key-store policy per repository, secrets passed straight to your app with no plaintext on disk, self-service onboarding, and a CI gate that blocks plaintext leaks. Built on SOPS + age.",
+  noindex = false,
 } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<!-- Page changes cross-fade; Astro skips the animation under prefers-reduced-motion. -->
+<html lang="en" transition:animate={fade({ duration: "0.25s" })}>
   <head>
     <!-- Google tag (gtag.js) -->
     <script
@@ -40,19 +47,25 @@ const {
          prefers-color-scheme, to keep dark as the default experience. -->
     <script is:inline>
       (function () {
-        try {
-          var t = localStorage.getItem("sopsy-theme");
+        function apply() {
+          var t;
+          try {
+            t = localStorage.getItem("sopsy-theme");
+          } catch (e) {}
           if (t !== "light" && t !== "dark") t = "dark";
           document.documentElement.setAttribute("data-theme", t);
-        } catch (e) {
-          document.documentElement.setAttribute("data-theme", "dark");
         }
+        apply();
+        // A client-side navigation replaces <html>'s attributes with the new
+        // page's, which carry no theme: put the stored one back before paint.
+        document.addEventListener("astro:after-swap", apply);
       })();
     </script>
 
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
@@ -72,19 +85,29 @@ const {
       href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Nunito:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+    <ClientRouter />
+    <slot name="head" />
   </head>
   <body>
-    <slot />
+    <Nav />
+    <main id="content">
+      <slot />
+    </main>
+    <Footer />
 
     <script>
+      // With the client router this module runs once per full page load.
+      // The nav and the theme toggle live in the persisted header, so they are
+      // bound once here; anything inside the swapped content is bound again on
+      // every astro:page-load.
+
       // Analytics — thin wrapper around gtag so the rest of the script can
       // fire events without caring whether GA loaded (ad-blocked, offline…).
       const track = (name: string, params: Record<string, unknown> = {}) => {
         (window as any).gtag?.("event", name, params);
       };
 
-      // Top-nav clicks — one delegated listener for the section links and the
-      // crates.io / GitHub CTAs, so we learn which nav items drive engagement.
+      // Top-nav clicks — so we learn which nav items drive engagement.
       document.querySelectorAll<HTMLAnchorElement>(".nav a").forEach((a) => {
         a.addEventListener("click", () => {
           track("nav_click", {
@@ -97,74 +120,67 @@ const {
       // Theme toggle — dark is the default; the chosen theme persists in
       // localStorage. The initial data-theme is already set by the inline
       // head script above, so there is no flash on load.
-      {
-        const root = document.documentElement;
-        const btn = document.getElementById("theme-toggle");
-        const meta = document.querySelector('meta[name="theme-color"]');
-        const sync = (t: string) => {
-          btn?.setAttribute(
-            "aria-label",
-            t === "light" ? "Switch to dark theme" : "Switch to light theme",
-          );
-          meta?.setAttribute("content", t === "light" ? "#faf7f1" : "#121318");
-        };
-        sync(root.getAttribute("data-theme") ?? "dark");
-        btn?.addEventListener("click", () => {
-          const next =
-            root.getAttribute("data-theme") === "light" ? "dark" : "light";
-          if (matchMedia("(prefers-reduced-motion: no-preference)").matches) {
-            root.classList.add("theme-anim");
-            setTimeout(() => root.classList.remove("theme-anim"), 360);
-          }
-          root.setAttribute("data-theme", next);
-          track("changeColor", { theme: next });
-          try {
-            localStorage.setItem("sopsy-theme", next);
-          } catch {
-            /* storage unavailable — toggle still works for the session */
-          }
-          sync(next);
-        });
-      }
+      const root = document.documentElement;
+      const themeBtn = document.getElementById("theme-toggle");
+      const syncTheme = (t: string) => {
+        themeBtn?.setAttribute(
+          "aria-label",
+          t === "light" ? "Switch to dark theme" : "Switch to light theme",
+        );
+        document
+          .querySelector('meta[name="theme-color"]')
+          ?.setAttribute("content", t === "light" ? "#faf7f1" : "#121318");
+      };
+      themeBtn?.addEventListener("click", () => {
+        const next =
+          root.getAttribute("data-theme") === "light" ? "dark" : "light";
+        if (matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+          root.classList.add("theme-anim");
+          setTimeout(() => root.classList.remove("theme-anim"), 360);
+        }
+        root.setAttribute("data-theme", next);
+        track("changeColor", { theme: next });
+        try {
+          localStorage.setItem("sopsy-theme", next);
+        } catch {
+          /* storage unavailable — toggle still works for the session */
+        }
+        syncTheme(next);
+      });
 
       // Mobile nav — the hamburger toggles the collapsed link dropdown.
-      {
-        const burger = document.getElementById("nav-burger");
-        const menu = document.getElementById("nav-menu");
-        if (burger && menu) {
-          const setOpen = (open: boolean) => {
-            menu.classList.toggle("is-open", open);
-            burger.setAttribute("aria-expanded", String(open));
-          };
-          const isOpen = () => menu.classList.contains("is-open");
-          burger.addEventListener("click", (e) => {
-            e.stopPropagation();
-            const open = !isOpen();
-            setOpen(open);
-            // The links come before the burger in the DOM, so Tab alone would
-            // skip them: move focus into the menu when it opens.
-            if (open) menu.querySelector<HTMLAnchorElement>("a")?.focus();
-          });
-          menu
-            .querySelectorAll("a")
-            .forEach((a) => a.addEventListener("click", () => setOpen(false)));
-          document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape" && isOpen()) {
-              setOpen(false);
-              burger.focus();
-            }
-          });
-          // Close once keyboard focus leaves both the menu and the burger.
-          menu.addEventListener("focusout", (e) => {
-            const next = e.relatedTarget as Node | null;
-            if (next && !menu.contains(next) && !burger.contains(next))
-              setOpen(false);
-          });
-          document.addEventListener("click", (e) => {
-            const t = e.target as Node;
-            if (!menu.contains(t) && !burger.contains(t)) setOpen(false);
-          });
-        }
+      const burger = document.getElementById("nav-burger");
+      const menu = document.getElementById("nav-menu");
+      const setOpen = (open: boolean) => {
+        menu?.classList.toggle("is-open", open);
+        burger?.setAttribute("aria-expanded", String(open));
+      };
+      if (burger && menu) {
+        const isOpen = () => menu.classList.contains("is-open");
+        burger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const open = !isOpen();
+          setOpen(open);
+          // The links come before the burger in the DOM, so Tab alone would
+          // skip them: move focus into the menu when it opens.
+          if (open) menu.querySelector<HTMLAnchorElement>("a")?.focus();
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && isOpen()) {
+            setOpen(false);
+            burger.focus();
+          }
+        });
+        // Close once keyboard focus leaves both the menu and the burger.
+        menu.addEventListener("focusout", (e) => {
+          const next = e.relatedTarget as Node | null;
+          if (next && !menu.contains(next) && !burger.contains(next))
+            setOpen(false);
+        });
+        document.addEventListener("click", (e) => {
+          const t = e.target as Node;
+          if (!menu.contains(t) && !burger.contains(t)) setOpen(false);
+        });
       }
 
       // Scroll reveal — progressively reveals sections + staggered child rows.
@@ -180,34 +196,52 @@ const {
         },
         { threshold: 0.16, rootMargin: "0px 0px -8% 0px" },
       );
-      document
-        .querySelectorAll("[data-reveal], .checklist")
-        .forEach((el) => io.observe(el));
+      document.addEventListener("astro:before-swap", () => io.disconnect());
 
-      // Copy-to-clipboard for install / command fields.
-      document
-        .querySelectorAll<HTMLButtonElement>("[data-copy]")
-        .forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            try {
-              const cmd = btn.dataset.copy ?? "";
-              track("copy_command", {
-                command: cmd,
-                location: btn.closest("[id]")?.id ?? "unknown",
-              });
-              await navigator.clipboard.writeText(cmd);
-              const prev = btn.textContent;
-              btn.textContent = "copied ✓";
-              btn.classList.add("copied");
-              setTimeout(() => {
-                btn.textContent = prev;
-                btn.classList.remove("copied");
-              }, 1600);
-            } catch {
-              /* clipboard unavailable — no-op */
-            }
+      // Everything below runs for each page, the first one included.
+      document.addEventListener("astro:page-load", () => {
+        setOpen(false);
+        syncTheme(root.getAttribute("data-theme") ?? "dark");
+
+        // The nav is persisted, so mark the current route here as well.
+        const here = location.pathname.replace(/\/$/, "");
+        document
+          .querySelectorAll<HTMLAnchorElement>("#nav-menu a")
+          .forEach((a) => {
+            const on = new URL(a.href).pathname.replace(/\/$/, "") === here;
+            if (on) a.setAttribute("aria-current", "page");
+            else a.removeAttribute("aria-current");
           });
-        });
+
+        document
+          .querySelectorAll("[data-reveal], .checklist")
+          .forEach((el) => io.observe(el));
+
+        // Copy-to-clipboard for install / command fields.
+        document
+          .querySelectorAll<HTMLButtonElement>("main [data-copy]")
+          .forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              try {
+                const cmd = btn.dataset.copy ?? "";
+                track("copy_command", {
+                  command: cmd,
+                  location: btn.closest("[id]")?.id ?? "unknown",
+                });
+                await navigator.clipboard.writeText(cmd);
+                const prev = btn.textContent;
+                btn.textContent = "copied ✓";
+                btn.classList.add("copied");
+                setTimeout(() => {
+                  btn.textContent = prev;
+                  btn.classList.remove("copied");
+                }, 1600);
+              } catch {
+                /* clipboard unavailable — no-op */
+              }
+            });
+          });
+      });
     </script>
   </body>
 </html>

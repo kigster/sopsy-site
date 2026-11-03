@@ -1,5 +1,6 @@
 ---
 import { SOPSY_VERSION } from "../constants";
+import { routeHref } from "../routes";
 
 const year = 2026;
 ---
@@ -46,7 +47,8 @@ const year = 2026;
           target="_blank"
           rel="noopener">Owner guide</a
         >
-        <a href="#quickstart">Quick start</a>
+        <a href={routeHref("start")}>Quick start</a>
+        <a href={routeHref("print")}>Print all docs</a>
       </div>
 
       <div class="footer__col">

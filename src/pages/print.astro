@@ -1,0 +1,35 @@
+---
+import Base from "../layouts/Base.astro";
+import Hero from "../components/Hero.astro";
+import { sections } from "../sections";
+import { docRoutes } from "../routes";
+---
+
+<Base
+  title="sopsy · all docs on one page"
+  description="Every sopsy docs section on one page, for printing."
+  noindex
+>
+  <Hero />
+  <nav class="container print-toc" aria-labelledby="print-toc-title">
+    <h2 id="print-toc-title">Contents</h2>
+    <ol>
+      {
+        docRoutes.map((r) => (
+          <li>
+            <a href={`#part-${r.slug}`}>{r.title}</a>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+  {
+    docRoutes.map((r) => (
+      <article class="print-part" id={`part-${r.slug}`}>
+        {sections[r.slug].map((Part) => (
+          <Part />
+        ))}
+      </article>
+    ))
+  }
+</Base>

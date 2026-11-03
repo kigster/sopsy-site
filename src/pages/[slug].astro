@@ -1,0 +1,19 @@
+---
+import Base from "../layouts/Base.astro";
+import { sections } from "../sections";
+import { docRoutes, type DocRoute } from "../routes";
+
+export function getStaticPaths() {
+  return docRoutes.map((route) => ({
+    params: { slug: route.slug },
+    props: { route },
+  }));
+}
+
+const { route } = Astro.props as { route: DocRoute };
+---
+
+<Base title={`${route.title} · sopsy`}>
+  <h1 class="sr-only">{route.title}</h1>
+  {sections[route.slug].map((Part) => <Part />)}
+</Base>

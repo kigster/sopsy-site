@@ -1,11 +1,19 @@
 ---
 import { SOPSY_VERSION } from "../constants";
+import { docRoutes, routeHref } from "../routes";
 
 const repo = "https://github.com/kigster/sopsy";
 const crate = "https://crates.io/crates/sopsy";
+const here = Astro.url.pathname.replace(/\/$/, "");
 ---
 
-<header class="nav">
+<!-- Persisted across page transitions: only the content below it fades. -->
+<header
+  class="nav"
+  transition:persist="site-nav"
+  transition:name="site-nav"
+  transition:animate="none"
+>
   <div class="container nav__inner">
     <a href={import.meta.env.BASE_URL} class="brand" aria-label="sopsy home">
       <span class="glyph" aria-hidden="true">🔒</span>
@@ -13,14 +21,16 @@ const crate = "https://crates.io/crates/sopsy";
     </a>
 
     <nav class="nav__links" id="nav-menu" aria-label="Primary">
-      <a href="#quickstart">Start</a>
-      <a href="#new">New</a>
-      <a href="#why">Who?</a>
-      <a href="#features">Features</a>
-      <a href="#teams">Teams</a>
-      <a href="#security">Security</a>
-      <a href="#commands">Commands</a>
-      <a href="#install">Install</a>
+      {
+        docRoutes.map((r) => (
+          <a
+            href={routeHref(r.slug)}
+            aria-current={here === routeHref(r.slug) ? "page" : undefined}
+          >
+            {r.label}
+          </a>
+        ))
+      }
     </nav>
 
     <div class="nav__cta">

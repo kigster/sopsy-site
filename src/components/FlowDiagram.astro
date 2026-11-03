@@ -498,127 +498,151 @@ const edges = scenarios.flatMap((sc) =>
   const STEP_MS = 1900;
   const HOLD_MS = 3200;
 
-  const stageEl = document.querySelector<HTMLElement>(".fd__stage");
-  const tabs = [...document.querySelectorAll<HTMLButtonElement>(".fd__tab")];
-  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Runs on every page load (the client router keeps this module alive);
+  // a page without the diagram is a no-op, and leaving the page stops it.
+  document.addEventListener("astro:page-load", start);
 
-  if (stageEl && tabs.length) {
-    const stage: HTMLElement = stageEl;
-    const order = tabs.map((t) => t.dataset.scenario!);
-    let state = order[0];
-    let step = -1;
-    let timer: number | undefined;
-    let visible = false;
-    let pinned = false; // the visitor picked a tab: loop it, stop touring
+  function start() {
+    const stageEl = document.querySelector<HTMLElement>(".fd__stage");
+    const tabs = [...document.querySelectorAll<HTMLButtonElement>(".fd__tab")];
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const edgesOf = (s: string) => [
-      ...stage.querySelectorAll<SVGGElement>(`.fd__edge[data-scenario="${s}"]`),
-    ];
-    const stepsOf = (s: string) => [
-      ...stage.querySelectorAll<HTMLLIElement>(
-        `.fd__script[data-scenario="${s}"] .fd__step`,
-      ),
-    ];
+    if (stageEl && tabs.length && !stageEl.dataset.running) {
+      stageEl.dataset.running = "1";
+      const stage: HTMLElement = stageEl;
+      const order = tabs.map((t) => t.dataset.scenario!);
+      let state = order[0];
+      let step = -1;
+      let timer: number | undefined;
+      let visible = false;
+      let pinned = false; // the visitor picked a tab: loop it, stop touring
 
-    function paint() {
-      const edges = edgesOf(state);
-      const items = stepsOf(state);
-      const hot = new Set<string>();
-      stage
-        .querySelectorAll<SVGGElement>(".fd__label")
-        .forEach((l) =>
-          l.classList.toggle(
-            "is-active",
-            !reduced &&
-              l.dataset.scenario === state &&
-              Number(l.dataset.step) === step,
-          ),
-        );
-      edges.forEach((e, i) => {
-        const active = reduced || i === step;
-        e.classList.toggle("is-active", !reduced && active);
-        e.classList.toggle("is-done", reduced || i < step);
-        if (i === step && !reduced) {
-          hot.add(e.dataset.from!);
-          hot.add(e.dataset.to!);
-          e.querySelector<SVGAnimationElement>("animateMotion")?.beginElement();
-        }
-      });
-      items.forEach((li, i) => {
-        li.classList.toggle("is-active", !reduced && i === step);
-        li.classList.toggle("is-done", reduced || i < step);
-      });
-      stage
-        .querySelectorAll<SVGGElement>(".fd__node")
-        .forEach((n) => n.classList.toggle("is-hot", hot.has(n.dataset.node!)));
-    }
+      const edgesOf = (s: string) => [
+        ...stage.querySelectorAll<SVGGElement>(
+          `.fd__edge[data-scenario="${s}"]`,
+        ),
+      ];
+      const stepsOf = (s: string) => [
+        ...stage.querySelectorAll<HTMLLIElement>(
+          `.fd__script[data-scenario="${s}"] .fd__step`,
+        ),
+      ];
 
-    function select(next: string, focus = false) {
-      state = next;
-      step = -1;
-      stage.dataset.state = next;
-      stage.setAttribute("aria-labelledby", `fd-tab-${next}`);
-      tabs.forEach((t) => {
-        const on = t.dataset.scenario === next;
-        t.setAttribute("aria-selected", String(on));
-        t.tabIndex = on ? 0 : -1;
-        if (on && focus) t.focus();
-      });
-      stage
-        .querySelectorAll<HTMLElement>(".fd__script")
-        .forEach((s) => (s.hidden = s.dataset.scenario !== next));
-      stage
-        .querySelectorAll<SVGGElement>(".fd__edge")
-        .forEach((e) => e.classList.remove("is-active", "is-done"));
-      paint();
-      schedule(reduced ? 0 : 400);
-    }
-
-    function tick() {
-      const total = edgesOf(state).length;
-      if (step < total - 1) {
-        step++;
-        paint();
-        schedule(step === total - 1 ? HOLD_MS : STEP_MS);
-        return;
+      function paint() {
+        const edges = edgesOf(state);
+        const items = stepsOf(state);
+        const hot = new Set<string>();
+        stage
+          .querySelectorAll<SVGGElement>(".fd__label")
+          .forEach((l) =>
+            l.classList.toggle(
+              "is-active",
+              !reduced &&
+                l.dataset.scenario === state &&
+                Number(l.dataset.step) === step,
+            ),
+          );
+        edges.forEach((e, i) => {
+          const active = reduced || i === step;
+          e.classList.toggle("is-active", !reduced && active);
+          e.classList.toggle("is-done", reduced || i < step);
+          if (i === step && !reduced) {
+            hot.add(e.dataset.from!);
+            hot.add(e.dataset.to!);
+            e.querySelector<SVGAnimationElement>(
+              "animateMotion",
+            )?.beginElement();
+          }
+        });
+        items.forEach((li, i) => {
+          li.classList.toggle("is-active", !reduced && i === step);
+          li.classList.toggle("is-done", reduced || i < step);
+        });
+        stage
+          .querySelectorAll<SVGGElement>(".fd__node")
+          .forEach((n) =>
+            n.classList.toggle("is-hot", hot.has(n.dataset.node!)),
+          );
       }
-      // the scenario finished: tour to the next tab, or replay a pinned one
-      if (!pinned) select(order[(order.indexOf(state) + 1) % order.length]);
-      else select(state);
-    }
 
-    function schedule(ms: number) {
-      clearTimeout(timer);
-      if (reduced || !visible || document.hidden) return;
-      timer = window.setTimeout(tick, ms);
-    }
+      function select(next: string, focus = false) {
+        state = next;
+        step = -1;
+        stage.dataset.state = next;
+        stage.setAttribute("aria-labelledby", `fd-tab-${next}`);
+        tabs.forEach((t) => {
+          const on = t.dataset.scenario === next;
+          t.setAttribute("aria-selected", String(on));
+          t.tabIndex = on ? 0 : -1;
+          if (on && focus) t.focus();
+        });
+        stage
+          .querySelectorAll<HTMLElement>(".fd__script")
+          .forEach((s) => (s.hidden = s.dataset.scenario !== next));
+        stage
+          .querySelectorAll<SVGGElement>(".fd__edge")
+          .forEach((e) => e.classList.remove("is-active", "is-done"));
+        paint();
+        schedule(reduced ? 0 : 400);
+      }
 
-    tabs.forEach((t, i) => {
-      t.addEventListener("click", () => {
-        pinned = true;
-        select(t.dataset.scenario!);
+      function tick() {
+        const total = edgesOf(state).length;
+        if (step < total - 1) {
+          step++;
+          paint();
+          schedule(step === total - 1 ? HOLD_MS : STEP_MS);
+          return;
+        }
+        // the scenario finished: tour to the next tab, or replay a pinned one
+        if (!pinned) select(order[(order.indexOf(state) + 1) % order.length]);
+        else select(state);
+      }
+
+      function schedule(ms: number) {
+        clearTimeout(timer);
+        if (reduced || !visible || document.hidden) return;
+        timer = window.setTimeout(tick, ms);
+      }
+
+      tabs.forEach((t, i) => {
+        t.addEventListener("click", () => {
+          pinned = true;
+          select(t.dataset.scenario!);
+        });
+        t.addEventListener("keydown", (e) => {
+          const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+          if (!d) return;
+          e.preventDefault();
+          pinned = true;
+          select(order[(i + d + order.length) % order.length], true);
+        });
       });
-      t.addEventListener("keydown", (e) => {
-        const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
-        if (!d) return;
-        e.preventDefault();
-        pinned = true;
-        select(order[(i + d + order.length) % order.length], true);
-      });
-    });
 
-    new IntersectionObserver(
-      ([entry]) => {
-        visible = entry.isIntersecting;
-        if (visible) schedule(300);
-        else clearTimeout(timer);
-      },
-      { threshold: 0.25 },
-    ).observe(stage);
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          visible = entry.isIntersecting;
+          if (visible) schedule(300);
+          else clearTimeout(timer);
+        },
+        { threshold: 0.25 },
+      );
+      io.observe(stage);
 
-    document.addEventListener("visibilitychange", () => schedule(300));
+      const onVisibility = () => schedule(300);
+      document.addEventListener("visibilitychange", onVisibility);
+      document.addEventListener(
+        "astro:before-swap",
+        () => {
+          clearTimeout(timer);
+          io.disconnect();
+          document.removeEventListener("visibilitychange", onVisibility);
+        },
+        { once: true },
+      );
 
-    select(state);
+      select(state);
+    }
   }
 </script>
 

@@ -196,6 +196,14 @@
     break-inside: avoid;
     page-break-inside: avoid;
   }
+  /* /print: every docs route starts on a new sheet, after the contents */
+  .print-part {
+    break-before: page;
+    page-break-before: always;
+  }
+  .print-toc ol {
+    columns: 1;
+  }
   p {
     orphans: 3;
     widows: 3;

@@ -1,4 +1,5 @@
 ---
+import { routeHref } from "../routes";
 import { SOPSY_VERSION } from "../constants";
 
 // Two install paths — Homebrew first (the recommended, prebuilt route).
@@ -34,7 +35,7 @@ const lines = [
   <div class="container">
     <p class="eyebrow hero__kicker" data-reveal>
       A CLI for SOPS · age · Secure Enclave · YubiKey<br />macOS + Linux ·
-      <a class="highlight" href="#new">new in v{SOPSY_VERSION} ↓</a>
+      <a class="highlight" href={routeHref("new")}>new in v{SOPSY_VERSION} →</a>
     </p>
 
     <h1 data-reveal>
@@ -90,7 +91,7 @@ const lines = [
               ))
             }
           </div>
-          <a class="btn btn--ghost" href="#quickstart"
+          <a class="btn btn--ghost" href={routeHref("start")}
             >See the 60-second setup ↓</a
           >
         </div>
