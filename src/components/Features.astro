@@ -10,21 +10,21 @@ const features = [
   {
     icon: "📦",
     title: "One-command bootstrap",
-    body: "<code>sopsy init</code> writes .sops.yaml, .env.example, an encrypted .env.encrypted, .gitignore safety rules, and .sopsy.yml. Idempotent — re-running is always safe.",
+    body: "<code>sopsy init</code> installs missing tools, then writes .sops.yaml, .env.example, an encrypted .env.encrypted, .gitignore safety rules, and .sopsy.yml, and sets up the break-glass key. Idempotent — re-running is always safe.",
     span: "feature--md",
     tag: "init",
   },
   {
     icon: "🗝️",
     title: "Key stores & repo policy",
-    body: "Four stores, strongest first: <code>enclave</code>, <code>yubikey</code>, <code>keychain</code> (macOS Keychain or Linux Secret Service), and a plaintext <code>file</code> as a last resort. <code>--store auto</code> picks the best one your machine has; <code>sopsy init --require</code> decides which ones members may use.",
+    body: "Four stores, strongest first: <code>enclave</code>, <code>yubikey</code>, <code>keychain</code> (macOS Keychain or Linux Secret Service), and a plaintext <code>file</code> as a last resort. <code>--store auto</code> picks the best one your machine has; <code>sopsy init --allow-stores</code> decides which ones members may use, hardware only by default. Hardware always beats software, whatever order the list is in.",
     span: "feature--full",
     tag: "stores",
   },
   {
     icon: "🩺",
     title: "doctor health checks",
-    body: "macOS, Apple Silicon, Secure Enclave, Touch ID, every external tool, and repo health — a colorful report you can paste straight into an issue. <code>sopsy deps</code> is the remedy: it installs whatever doctor found missing.",
+    body: "macOS, Apple Silicon, Secure Enclave, Touch ID, YubiKey, every external tool, and repo health — a colorful report you can paste straight into an issue. <code>sopsy deps</code> is the remedy: it installs whatever doctor found missing, <code>ykman</code> included.",
     span: "feature--lg",
     tag: "diagnostics",
   },
@@ -45,9 +45,16 @@ const features = [
   {
     icon: "👥",
     title: "Recipient management",
-    body: "Add, remove, and list who can decrypt. Every change re-wraps existing secrets via <code>sops updatekeys</code>, so the key set never drifts from the ciphertext.",
+    body: "Add, remove, list, and rotate who can decrypt. Every change re-wraps existing secrets via <code>sops updatekeys</code>, so the key set never drifts from the ciphertext. The data key itself stays the same: <code>sopsy rotate-data-key</code> replaces it.",
     span: "feature--md",
     tag: "recipients",
+  },
+  {
+    icon: "🚀",
+    title: "Secrets straight into a process",
+    body: "<code>sopsy run -- bin/rails server</code> decrypts into one command's environment and writes nothing to disk. <code>sopsy set API_KEY</code> and <code>sopsy unset</code> change one value without an editor, and the value never shows up in a process listing.",
+    span: "feature--full",
+    tag: "run / set",
   },
   {
     icon: "🧪",

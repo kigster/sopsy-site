@@ -13,14 +13,16 @@
             A break-glass key is a separate emergency age key pair — <b
               >portable</b
             > by design, stored <b>offline</b> in a vault and shared with only a few
-            admins. If every developer's Secure Enclave device is lost, it can still
-            decrypt and re-key the repository. <code class="mono amber"
+            admins. If every developer's Secure Enclave or YubiKey is lost, it can
+            still decrypt and re-key the repository. An interactive <code
+              class="mono amber">sopsy init</code
+            > sets it up by default. <code class="mono amber"
               >sopsy recipient break-glass</code
             > runs the whole ceremony in one command: generate, hand off, wait for
             ENTER, delete the local copies, register and re-key.
           </p>
           <p style="margin-top:1rem">
-            Lose your only Enclave device with no break-glass key, and every
+            Lose your only hardware key with no break-glass key, and every
             secret becomes <b>permanently undecryptable</b>. That's why <code
               class="mono amber">doctor</code
             > and <code class="mono amber">check</code> nag until one exists — and

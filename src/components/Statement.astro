@@ -6,7 +6,7 @@ const steps = [
     icon: "🔑",
     kbd: "sopsy join",
     title: "Generate",
-    body: "age-plugin-se mints your keypair via Touch ID. The private key is sealed in the Secure Enclave; your public key is recorded pending in .sopsy.yml.",
+    body: "Your keypair is minted in hardware: the Secure Enclave (Touch ID) or a YubiKey (PIN and a touch). The private key never leaves it; your public key is recorded pending in .sopsy.yml.",
   },
   {
     cls: "keyflow__node--public",
@@ -27,7 +27,7 @@ const steps = [
     icon: "✏️",
     kbd: "sopsy edit",
     title: "Edit & commit",
-    body: "git pull, then Touch ID decrypts into your editor and re-encrypts on save. Commit the ciphertext; plaintext .env stays gitignored.",
+    body: "git pull, then your key decrypts into your editor and re-encrypts on save. Commit the ciphertext; plaintext .env stays gitignored.",
   },
 ];
 ---
@@ -43,7 +43,7 @@ const steps = [
     <div
       class="keyflow"
       data-reveal
-      aria-label="How a Secure Enclave key is generated and used"
+      aria-label="How a hardware key is generated and used"
     >
       {
         steps.map((s, i) => (
@@ -72,7 +72,7 @@ const steps = [
     <div class="statement__cols">
       <p class="statement__col statement__col--l">
         SOPS stays the encryption engine. <strong>age</strong> stays the cryptography.
-        The Secure Enclave holds the private key.
+        Your Secure Enclave or YubiKey holds the private key.
       </p>
       <p class="statement__col statement__col--r">
         sopsy orchestrates all three with safe defaults, great diagnostics, and

@@ -7,8 +7,8 @@ interface Props {
 }
 
 const {
-  title = "sopsy — encrypted team secrets in Git, unlocked with Touch ID",
-  description = "A Rust CLI that keeps your team's API keys and .env secrets encrypted in Git. Hardware keys in the macOS Secure Enclave, Touch ID decryption, self-service onboarding, and a CI gate that blocks plaintext leaks. Built on SOPS + age.",
+  title = "sopsy — encrypted team secrets in Git, unlocked with Touch ID or a YubiKey",
+  description = "A Rust CLI that keeps your team's API keys and .env secrets encrypted in Git. Hardware keys in the macOS Secure Enclave or a YubiKey, a key-store policy per repository, secrets passed straight to your app with no plaintext on disk, self-service onboarding, and a CI gate that blocks plaintext leaks. Built on SOPS + age.",
 } = Astro.props;
 ---
 

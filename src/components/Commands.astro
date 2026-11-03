@@ -3,8 +3,8 @@ const cmds = [
   {
     kw: "sopsy",
     name: "init",
-    sub: "",
-    p: "Bootstrap an encrypted repository: verify the toolchain, acquire an age recipient, and write every config file. Idempotent — keeps existing files unless <code>--force</code>.",
+    sub: "[-A stores] [-s store]",
+    p: "Bootstrap an encrypted repository: install missing tools (<code>--skip-deps</code> to skip), record which key stores members may use (<code>--allow-stores</code>, hardware only by default), make your key, write every config file, and set up the break-glass key (<code>--no-emergency-keys</code> to skip). Idempotent — keeps existing files unless <code>--force</code>.",
   },
   {
     kw: "sopsy",
@@ -15,8 +15,8 @@ const cmds = [
   {
     kw: "sopsy",
     name: "join",
-    sub: "<name> [-t]",
-    p: "Self-service onboarding (alias of <code>request-access</code>): generate your Secure Enclave key and record a <code>pending</code> request in <code>.sopsy.yml</code>. Commit, open a PR, and ask any member to approve. Pass <code>-t</code> / <code>--without-touch-id</code> to mint the key with no Touch ID gate — handy for <code>direnv</code> and many-window workflows.",
+    sub: "<name> [-s store] [-t]",
+    p: "Self-service onboarding (alias: <code>request-access</code>): generate your key in any store the repository allows (<code>-s enclave|yubikey|keychain|file</code>) and record a <code>pending</code> request in <code>.sopsy.yml</code>. Commit, open a PR, and ask any member to approve. Pass <code>-t</code> / <code>--without-touch-id</code> to mint the key with no presence gate — handy for <code>direnv</code> and many-window workflows.",
   },
   {
     kw: "sopsy",
@@ -33,14 +33,38 @@ const cmds = [
   {
     kw: "sopsy",
     name: "recipient",
-    sub: "add · remove · list · keygen · break-glass · ci",
-    p: "Manage who can decrypt. add/remove keep <code>.sopsy.yml</code> and <code>.sops.yaml</code> in sync and re-key secrets; <code>list</code> prints every member with their approval provenance; <code>break-glass</code> and <code>ci</code> run guided portable-key ceremonies; <code>keygen</code> mints an Enclave key without registering it.",
+    sub: "add · remove · list · keygen · rotate · break-glass · ci",
+    p: "Manage who can decrypt. add/remove keep <code>.sopsy.yml</code> and <code>.sops.yaml</code> in sync and re-key secrets; <code>list</code> prints every member with their approval provenance; <code>rotate</code> swaps your key under the same name (<code>--new-data-key</code> also replaces the data key); <code>break-glass</code> and <code>ci</code> run guided portable-key ceremonies; <code>keygen</code> mints a key in any store without registering it.",
   },
   {
     kw: "sopsy",
     name: "encrypt · decrypt",
     sub: "<file>",
     p: "One-shot, scriptable crypto outside the editor. <code>sopsy encrypt</code> writes a <code>.encrypted</code> artifact (or stdout); <code>sopsy decrypt</code> prints plaintext to stdout or <code>-o</code> a file — ideal for <code>direnv</code> and CI. Structured <code>.env</code>/yaml/json/ini encrypt values only; anything else as one blob.",
+  },
+  {
+    kw: "sopsy",
+    name: "run",
+    sub: "[-f file] -- <cmd>",
+    p: "Run a command with the decrypted values in its environment. Nothing is written to disk; sopsy replaces itself with the command, so exit codes and signals are its own. Repeat <code>-f</code> for several files (later ones win); <code>--pristine</code> passes only the decrypted values.",
+  },
+  {
+    kw: "sopsy",
+    name: "set · unset",
+    sub: "<KEY> [VALUE]",
+    p: "Change one value in an encrypted file without an editor. Omit the value to be asked with hidden input, or pipe it in on stdin; it never appears in a process listing. <code>-f</code> picks the file (default <code>.env.encrypted</code>). <code>set</code> needs sops 3.11 or newer.",
+  },
+  {
+    kw: "sopsy",
+    name: "rotate-data-key",
+    sub: "[files…]",
+    p: "Re-encrypt files under a brand-new data key for the same recipients (<code>sops rotate</code>). With no arguments, every encrypted file the repository manages. Run it after <code>recipient remove</code>.",
+  },
+  {
+    kw: "sopsy",
+    name: "yubikey · enclave",
+    sub: "<plugin args>",
+    p: "Run <code>age-plugin-yubikey</code> or <code>age-plugin-se</code> with your arguments, passed through unchanged. <code>sopsy yubikey --list</code> shows every key on your YubiKey: slot, PIN and touch policy.",
   },
   {
     kw: "sopsy",
@@ -57,8 +81,8 @@ const cmds = [
   {
     kw: "sopsy",
     name: "deps",
-    sub: "",
-    p: "Install the external tools (<code>sops</code>, <code>age</code>, <code>age-plugin-se</code>) with Homebrew. Probes first, installs only what is missing. The remedy that pairs with doctor: <code>--check</code> fails CI if anything is absent, <code>--dry-run</code> previews the brew command.",
+    sub: "[--check] [--dry-run]",
+    p: "Install the external tools (<code>sops</code>, <code>age</code>, <code>age-plugin-se</code>, <code>age-plugin-yubikey</code>, <code>ykman</code>) with Homebrew. Probes first, installs only what is missing. The remedy that pairs with doctor: <code>--check</code> fails CI if anything is absent, <code>--dry-run</code> previews the brew command.",
   },
   {
     kw: "sopsy",

@@ -12,9 +12,9 @@ const rows = [
   },
   {
     task: "Get a hardware identity",
-    sops: "Run <code>age-plugin-se keygen</code>, copy the public key, paste it into config without fat-fingering it.",
+    sops: "Run <code>age-plugin-se keygen</code> or <code>age-plugin-yubikey --generate</code>, copy the public key, paste it into config without fat-fingering it.",
     sopsy:
-      "The Enclave identity is generated, printed prominently, and recorded in config automatically.",
+      "The key is made in the best allowed store your machine has (Secure Enclave, YubiKey, keychain), printed prominently, and recorded in config automatically.",
     cmd: "sopsy init",
   },
   {
@@ -32,11 +32,18 @@ const rows = [
     cmd: "sopsy recipient list",
   },
   {
-    task: "Rotate / offboard keys",
-    sops: "Manually re-key each file; forget one and a departed key still decrypts new commits.",
+    task: "Offboard a teammate",
+    sops: "Hand-edit <code>.sops.yaml</code>, run <code>updatekeys</code> on each file, and miss that the data key never changed.",
     sopsy:
-      "Every recipient change re-wraps the existing secrets via <code>sops updatekeys</code> automatically, so a departed key can't read new commits.",
-    cmd: "sopsy recipient remove",
+      "<code>recipient remove</code> re-wraps every file for the remaining members. The data key stays the same, so <code>rotate-data-key</code> re-encrypts under a new one. Then change the secret values: old ciphertext in git history still opens.",
+    cmd: "sopsy recipient remove → sopsy rotate-data-key",
+  },
+  {
+    task: "Swap your own key",
+    sops: "Generate a new key, add it, remove the old one, re-key every file, and redo your approval by hand.",
+    sopsy:
+      "One command swaps your key under the same name and approval, and re-wraps every secret. <code>--new-data-key</code> also re-encrypts under a fresh data key.",
+    cmd: "sopsy recipient rotate",
   },
   {
     task: "Edit an encrypted file",
@@ -44,6 +51,20 @@ const rows = [
     sopsy:
       "File type is auto-detected (dotenv / yaml / json / binary); your <code>$EDITOR</code> just opens.",
     cmd: "sopsy edit",
+  },
+  {
+    task: "Change one secret",
+    sops: "Decrypt the whole file into an editor, find the line, retype the value, and hope nothing else changed.",
+    sopsy:
+      "Asks for the value with hidden input, or reads it from stdin, so it never lands in shell history. <code>unset</code> removes one.",
+    cmd: "sopsy set API_KEY",
+  },
+  {
+    task: "Run an app with secrets",
+    sops: "Decrypt to a plaintext <code>.env</code> and remember to delete it, or wire up <code>sops exec-env</code> yourself.",
+    sopsy:
+      "Decrypts into one command's environment and writes nothing to disk. Several files merge; later ones win.",
+    cmd: "sopsy run -- bin/dev",
   },
   {
     task: "Encrypt a file in one shot",
@@ -63,8 +84,8 @@ const rows = [
     task: "Know what's value-encryptable",
     sops: "Dig through docs to learn which formats support partial, values-only encryption versus whole-file.",
     sopsy:
-      "<code>sopsy list-supported-types</code> prints exactly which extensions value-encrypt (.env / .yaml / .json / .ini); everything else is encrypted as a single binary blob.",
-    cmd: "sopsy list-supported-types",
+      "<code>sopsy types</code> prints exactly which extensions value-encrypt (.env / .yaml / .json / .ini); everything else is encrypted as a single binary blob.",
+    cmd: "sopsy types",
   },
   {
     task: "Guard CI against leaks",
@@ -82,10 +103,10 @@ const rows = [
   },
   {
     task: "Diagnose a broken setup",
-    sops: "Dig through <code>$PATH</code>, tool versions, and Enclave status by hand.",
+    sops: "Dig through <code>$PATH</code>, tool versions, Enclave and YubiKey status by hand.",
     sopsy:
-      "A grouped, colorful report you can paste straight into a GitHub issue — always exits 0.",
-    cmd: "sopsy doctor",
+      "A grouped, colorful report you can paste straight into a GitHub issue, including which key store <code>auto</code> would use. <code>sopsy deps</code> installs whatever is missing.",
+    cmd: "sopsy doctor → sopsy deps",
   },
   {
     task: "Stay disaster-proof",
@@ -103,7 +124,7 @@ const rows = [
       <div>
         <p class="eyebrow eyebrow--lime">Why not just use sops?</p>
         <h2 class="section-title">
-          You already can. sopsy removes the thirteen ways you can get it wrong.
+          You already can. sopsy removes the sixteen ways you can get it wrong.
         </h2>
       </div>
       <p class="section-lead">

@@ -5,16 +5,20 @@ const points = [
     p: "On Apple Silicon the private key is created within the Secure Enclave and bound to that hardware — it cannot be read, copied, or exported by anyone or anything.",
   },
   {
-    h: "Released only with Touch ID.",
-    p: "Decryption prompts your fingerprint. The Enclave hands the key to sops for one operation, then it is gone again.",
+    h: "Released with Touch ID.",
+    p: 'Decryption prompts your fingerprint, every time. If that gets old, <code class="mono lime">sopsy recipient rotate -s enclave -t</code> swaps in a key with no Touch ID gate: it still never leaves the chip, but any program running as you can then decrypt.',
   },
   {
     h: "Only the public recipient travels.",
     p: 'The <code class="mono lime">age1se1…</code> string is safe to commit and safe to share. It is all a teammate or admin needs to grant you access.',
   },
   {
+    h: "No Secure Enclave? Use a YubiKey.",
+    p: 'On Intel Macs and Linux the key lives in a YubiKey PIV slot instead: a PIN once per session with <code class="mono lime">-c cached</code>, then a touch. Up to 20 keys fit on one YubiKey.',
+  },
+  {
     h: "Lose the device, keep the repo.",
-    p: "Because the key is bound to one Mac, a break-glass recipient is what keeps secrets recoverable if every Enclave device is lost.",
+    p: "Because the key is bound to one Mac or one YubiKey, a break-glass recipient is what keeps secrets recoverable if every hardware key is lost.",
   },
 ];
 ---

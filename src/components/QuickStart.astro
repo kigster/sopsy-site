@@ -6,11 +6,11 @@ const steps = [
   },
   {
     h: "Bootstrap everything",
-    p: "<code>sopsy init</code> — tools check, Secure Enclave identity, config files.",
+    p: "<code>sopsy init</code> — installs missing tools, records a hardware-only key policy, makes your key in the Secure Enclave or on a YubiKey, writes the config files, and sets up the break-glass key.",
   },
   {
     h: "Put real secrets in",
-    p: "<code>sopsy edit .env.encrypted</code> decrypts to your editor and re-encrypts on save.",
+    p: "<code>sopsy edit .env.encrypted</code> decrypts to your editor and re-encrypts on save. Or change one value without an editor: <code>sopsy set API_KEY</code> asks for it with hidden input.",
   },
   {
     h: "Verify hygiene before you commit",
@@ -22,11 +22,15 @@ const steps = [
   },
   {
     h: "A teammate joins (self-service)",
-    p: 'The new dev clones the repo and runs <code>sopsy join "Alan Turing"</code> — mints their own Secure Enclave key with Touch ID and records a <code>pending</code> request. They commit and open a PR.',
+    p: 'The new dev clones the repo and runs <code>sopsy join "Alan Turing"</code> — mints their own key in the Secure Enclave or on a YubiKey, within the repository\'s policy, and records a <code>pending</code> request. They commit and open a PR.',
   },
   {
     h: "An existing member approves",
     p: 'Any current member runs <code>sopsy approve "Alan Turing"</code> — vouches for the key, promotes it into <code>.sops.yaml</code>, and re-keys every secret. Who approved, and when, is recorded in <code>.sopsy.yml</code> — <code>sopsy recipient list</code> shows the whole audit trail. Now Alan can decrypt.',
+  },
+  {
+    h: "Run your app with its secrets",
+    p: "<code>sopsy run -- bin/rails server</code> decrypts into that one process's environment. Nothing is written to disk.",
   },
 ];
 ---
@@ -35,7 +39,7 @@ const steps = [
   <div class="container qs__wrap">
     <div data-reveal>
       <p class="eyebrow eyebrow--lime">Quick start</p>
-      <h2 class="section-title">From zero to a whole team in seven steps.</h2>
+      <h2 class="section-title">From zero to a whole team in eight steps.</h2>
       <ol class="steps">
         {
           steps.map((s) => (
