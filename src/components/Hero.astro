@@ -2,18 +2,17 @@
 import { SOPSY_VERSION } from "../constants";
 
 // Two install paths — Homebrew first (the recommended, prebuilt route).
-const installs = [
-  "brew trust kigster/tap",
-  "brew install kigster/tap/sopsy",
-  "cargo install sopsy",
-];
+// The `brew trust` step only applies under HOMEBREW_REQUIRE_TAP_TRUST, so it
+// lives in the Install section rather than here.
+const installs = ["brew install kigster/tap/sopsy", "cargo install sopsy"];
 // Each terminal line gets an incremental reveal delay. A condensed,
 // faithful run of `sopsy init` — the age key is truncated to keep the
 // terminal from scrolling horizontally.
 const lines = [
   { c: "prompt", t: "sopsy init" },
   { c: "cmt", t: "  bootstrapping your encrypted repository" },
-  { c: "ok", t: "  ✔ git repository   ✔ found sops" },
+  { c: "ok", t: "  ✔ git repository   ✔ tools installed (sopsy deps)" },
+  { c: "cmt", t: "  > Key stores members may use:  onchip, exthardware" },
   { c: "cmt", t: "  > Generate a Secure Enclave identity?  Yes" },
   { c: "ok", t: "  ✔ created Secure Enclave identity (Touch ID)" },
   { c: "cmt", t: "  ℹ private key never leaves the Enclave" },
@@ -34,7 +33,8 @@ const lines = [
 <section class="hero">
   <div class="container">
     <p class="eyebrow hero__kicker" data-reveal>
-      A CLI for SOPS · age · Secure Enclave · YubiKey<br />macOS + Linux
+      A CLI for SOPS · age · Secure Enclave · YubiKey<br />macOS + Linux ·
+      <a class="highlight" href="#new">new in v{SOPSY_VERSION} ↓</a>
     </p>
 
     <h1 data-reveal>
@@ -55,8 +55,8 @@ const lines = [
             >.json</code
           > files — values only, names left in the clear. The file stays diffable
           and git blame-able, so you can see exactly when each key appeared and who
-          added it, then commit the whole thing without flinching. Every teammate's
-          key is minted in hardware: their&nbsp;
+          added it, then commit the whole thing without flinching. By default every
+          teammate's key is minted in hardware: their&nbsp;
           <a
             class="highlight"
             href="https://support.apple.com/guide/security/the-secure-enclave-sec59b0b31ff/web"
@@ -65,13 +65,15 @@ const lines = [
             class="highlight"
             href="https://github.com/str4d/age-plugin-yubikey"
             target="_blank">YubiKey</a
-          > on Intel Macs and Linux.
+          > on Intel Macs and Linux. The repository's policy decides whether the OS
+          keychain is allowed for machines with neither.
           <br /><br />
 
-          Secrets decrypt only with Touch ID, or a YubiKey PIN and a touch. The
+          Hardware keys decrypt with Touch ID, or a YubiKey PIN and a touch. The
           private key never leaves the chip, and any current member can grant
-          the next one access. No server. No subscription. No plaintext in Slack
-          — or anywhere for that matter.
+          the next one access. <code>sopsy run</code> hands the secrets straight to
+          your app, with no plaintext file at all. No server. No subscription. No
+          plaintext in Slack — or anywhere for that matter.
         </p>
 
         <div class="hero__actions">

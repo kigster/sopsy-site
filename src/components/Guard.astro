@@ -1,6 +1,6 @@
 ---
-// Layered secret-scanning: sopsy setup wires lefthook (pre-commit) + a CI
-// workflow that run three complementary checks. The cards spell out how the
+// Layered secret-scanning: `sopsy check` in a pre-commit hook and in CI, plus
+// the content scanners you add yourself. The cards spell out how the
 // structural sopsy check differs from the content scanners.
 const checks = [
   {
@@ -30,28 +30,30 @@ const checks = [
       <p class="eyebrow eyebrow--lime">Defense in depth</p>
       <h2 class="section-title">Stop secrets before the commit ever lands.</h2>
       <p class="section-lead">
-        Don't rely on remembering. <code class="mono lime"
-          >sopsy setup pre-commit</code
-        > installs a <code class="mono">lefthook</code> hook that runs three complementary
-        checks before every commit; <code class="mono lime"
-          >sopsy setup github-workflow</code
-        > adds a CI job that scans the entire repository.
+        Don't rely on remembering. Run <code class="mono lime">sopsy check</code
+        > from a pre-commit hook and in every CI pipeline, and pair it with a content
+        scanner such as <code class="mono">gitleaks</code> or <code class="mono"
+          >detect-secrets</code
+        > in your own hook manager. Three complementary checks, each catching what
+        the others miss.
       </p>
       <div class="guard__cmds">
         <div class="copyfield">
           <span class="sigil">$</span>
-          <span>sopsy setup pre-commit</span>
+          <span
+            >printf '#!/bin/sh\nexec sopsy check\n' &gt; .git/hooks/pre-commit</span
+          >
           <button
-            data-copy="sopsy setup pre-commit"
-            aria-label="Copy pre-commit setup command">copy</button
+            data-copy={"printf '#!/bin/sh\\nexec sopsy check\\n' > .git/hooks/pre-commit"}
+            aria-label="Copy pre-commit hook command">copy</button
           >
         </div>
         <div class="copyfield">
           <span class="sigil">$</span>
-          <span>sopsy setup github-workflow</span>
+          <span>chmod +x .git/hooks/pre-commit</span>
           <button
-            data-copy="sopsy setup github-workflow"
-            aria-label="Copy workflow setup command">copy</button
+            data-copy="chmod +x .git/hooks/pre-commit"
+            aria-label="Copy chmod command">copy</button
           >
         </div>
       </div>
@@ -79,7 +81,7 @@ const checks = [
         never went through sops at all. What one heuristic misses, another catches
         — and because the pre-commit hook is advisory (<code class="mono"
           >--no-verify</code
-        > skips it), the <b>github-workflow</b> is the gate that can't be bypassed.</span
+        > skips it), the same <b>sopsy check</b> in CI is the gate that can't be bypassed.</span
       >
     </p>
   </div>
