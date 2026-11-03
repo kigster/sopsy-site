@@ -48,7 +48,8 @@
   --step-5: clamp(3.6rem, 2.4rem + 6vw, 8rem);
 
   /* ----- layout ----- */
-  --container: 1180px;
+  /* 1180px × 1.1; the nav and every section share it through .container */
+  --container: 1298px;
   --gutter: clamp(1.1rem, 4vw, 3rem);
   --radius: 4px;
   --radius-lg: 8px;
@@ -2140,7 +2141,7 @@ samp {
   border: 0;
   border-radius: inherit;
 }
-/* the GIF is 1380px wide natively — always fill the container (1180px max)
+/* the GIF is 1380px wide natively — always fill the container (1298px max)
    and keep shrinking with the viewport; height follows the 1380:860 ratio */
 .qs__cast img {
   display: block;
