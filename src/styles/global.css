@@ -969,7 +969,9 @@ samp {
   align-items: center;
   gap: 0.5rem;
 }
-.nav__links a {
+.nav__links a,
+.nav__crate {
+  white-space: nowrap;
   font-family: var(--font-mono);
   font-size: 0.78rem;
   color: var(--bone-dim);
@@ -984,7 +986,8 @@ samp {
     background 0.15s,
     border-color 0.15s;
 }
-.nav__links a:hover {
+.nav__links a:hover,
+.nav__crate:hover {
   /* text goes white; fill matches the GitHub (primary) button */
   color: #fff;
   background: var(--rust);
@@ -1130,7 +1133,7 @@ samp {
   }
 }
 @media (max-width: 540px) {
-  .nav__cta .btn--ghost {
+  .nav__crate {
     display: none;
   }
 }
@@ -2676,10 +2679,12 @@ samp {
 }
 /* light theme: --ink-1 is lighter than the chip, so use --line for a border
    that still reads darker than the button fill. */
-:root[data-theme="light"] .nav__links a {
+:root[data-theme="light"] .nav__links a,
+:root[data-theme="light"] .nav__crate {
   border-color: var(--line);
 }
-:root[data-theme="light"] .nav__links a:hover {
+:root[data-theme="light"] .nav__links a:hover,
+:root[data-theme="light"] .nav__crate:hover {
   border-color: var(--rust-deep);
 }
 :root[data-theme="light"] .btn--ghost:hover {
@@ -2788,4 +2793,14 @@ samp {
   columns: 2;
   padding-left: 1.2rem;
   color: var(--bone-dim);
+}
+
+/* The sticky nav already sets the first block apart, so the first section of
+   every page sits 40px closer to it (one rule for home and every route). */
+main > section:first-of-type {
+  margin-top: -40px;
+}
+/* In-page anchors (/features#flow) land below the sticky nav, not under it. */
+main [id] {
+  scroll-margin-top: 80px;
 }
