@@ -134,15 +134,29 @@ const {
             menu.classList.toggle("is-open", open);
             burger.setAttribute("aria-expanded", String(open));
           };
+          const isOpen = () => menu.classList.contains("is-open");
           burger.addEventListener("click", (e) => {
             e.stopPropagation();
-            setOpen(!menu.classList.contains("is-open"));
+            const open = !isOpen();
+            setOpen(open);
+            // The links come before the burger in the DOM, so Tab alone would
+            // skip them: move focus into the menu when it opens.
+            if (open) menu.querySelector<HTMLAnchorElement>("a")?.focus();
           });
           menu
             .querySelectorAll("a")
             .forEach((a) => a.addEventListener("click", () => setOpen(false)));
           document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") setOpen(false);
+            if (e.key === "Escape" && isOpen()) {
+              setOpen(false);
+              burger.focus();
+            }
+          });
+          // Close once keyboard focus leaves both the menu and the burger.
+          menu.addEventListener("focusout", (e) => {
+            const next = e.relatedTarget as Node | null;
+            if (next && !menu.contains(next) && !burger.contains(next))
+              setOpen(false);
           });
           document.addEventListener("click", (e) => {
             const t = e.target as Node;

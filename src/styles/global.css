@@ -1064,7 +1064,10 @@ samp {
   display: block;
 }
 
-@media (max-width: 1300px) {
+/* Collapse as soon as the link bar stops fitting. Measured in Chrome: brand,
+   eight links and the CTA icons need 1152px of viewport; 1199px leaves room
+   for a classic scrollbar and font fallback. Re-measure when links change. */
+@media (max-width: 1199px) {
   .nav__burger {
     display: inline-grid;
   }
@@ -1129,6 +1132,15 @@ samp {
 @media (max-width: 540px) {
   .nav__cta .btn--ghost {
     display: none;
+  }
+}
+/* the smallest phones: tighten the gaps so brand + three icons fit at 320px */
+@media (max-width: 380px) {
+  .nav__inner {
+    gap: 0.6rem;
+  }
+  .nav__cta {
+    gap: 0.4rem;
   }
 }
 
