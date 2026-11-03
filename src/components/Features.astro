@@ -2,8 +2,8 @@
 const features = [
   {
     icon: "🔐",
-    title: "Secure Enclave identities",
-    body: "Your private key is generated inside Apple Silicon hardware, gated by Touch ID, and impossible to read, copy, or exfiltrate. Only the public recipient is ever shared.",
+    title: "Hardware-backed identities",
+    body: "Your private key is generated inside hardware and cannot be read, copied, or exfiltrated: the Secure Enclave of an Apple Silicon Mac (Touch ID), or a YubiKey PIV slot (PIN and a touch) on Intel Macs and Linux. Only the public recipient is ever shared.",
     span: "feature--xl",
     tag: "hardware",
   },
@@ -13,6 +13,13 @@ const features = [
     body: "<code>sopsy init</code> writes .sops.yaml, .env.example, an encrypted .env.encrypted, .gitignore safety rules, and .sopsy.yml. Idempotent — re-running is always safe.",
     span: "feature--md",
     tag: "init",
+  },
+  {
+    icon: "🗝️",
+    title: "Key stores & repo policy",
+    body: "Four stores, strongest first: <code>enclave</code>, <code>yubikey</code>, <code>keychain</code> (macOS Keychain or Linux Secret Service), and a plaintext <code>file</code> as a last resort. <code>--store auto</code> picks the best one your machine has; <code>sopsy init --require</code> decides which ones members may use.",
+    span: "feature--full",
+    tag: "stores",
   },
   {
     icon: "🩺",
@@ -59,7 +66,7 @@ const features = [
   {
     icon: "🧾",
     title: "A built-in audit trail",
-    body: 'Every member carries their name, username, when they requested access, and who granted it — <code>approved_by</code> recorded as <em>"Konstantin Gredeskoul (kig)"</em>. <code>sopsy recipient list</code> shows it all in one table.',
+    body: 'Every member carries their name, username, when they requested access, and who granted it — <code>approved_by</code> recorded as <em>"Grace Hopper (grace)"</em>. <code>sopsy recipient list</code> shows it all in one table.',
     span: "feature--lg",
     tag: "provenance",
   },

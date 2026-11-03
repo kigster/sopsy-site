@@ -2,7 +2,7 @@
    sopsy.dev — design system
    Aesthetic: "cryptographic terminal" — near-black vault, bone type,
    rust signal-orange primary, acid-lime "secure" accent. Bold maximal.
-   Type: Syne (display) · Hanken Grotesk (body) · JetBrains Mono (code/labels)
+   Type: Inter (display) · Nunito (body) · JetBrains Mono (code/labels)
    ========================================================================= */
 
 @font-face {
@@ -10,21 +10,23 @@
 }
 
 :root {
+  color-scheme: dark;
+
   /* ----- ink / surfaces ----- */
-  --ink: #08080a;
-  --ink-1: #0b0b0f;
-  --ink-2: #111118;
-  --ink-3: #181821;
-  --ink-4: #21212c;
+  --ink: #121318;
+  --ink-1: #16171d;
+  --ink-2: #1b1c24;
+  --ink-3: #22232d;
+  --ink-4: #2b2c38;
   --line: rgba(236, 232, 225, 0.1);
   --line-soft: rgba(236, 232, 225, 0.055);
   --line-hot: rgba(255, 90, 48, 0.42);
 
   /* ----- type colors ----- */
   --bone: #ece8e1;
-  --bone-2: #c7c2b8;
-  --bone-dim: #8b867c;
-  --bone-faint: #5d5950;
+  --bone-2: #dedad2;
+  --bone-dim: #aba69b;
+  --bone-faint: #7d786e;
 
   /* ----- accents ----- */
   --rust: #ff5a30; /* primary — signal / rust */
@@ -51,8 +53,8 @@
   --radius: 4px;
   --radius-lg: 8px;
 
-  --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Nunito", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
@@ -617,12 +619,12 @@ samp {
    ======================================================================= */
 .install__grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.2rem;
 }
 @media (max-width: 700px) {
   .install__grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 .install__card {
@@ -663,6 +665,7 @@ samp {
 }
 .install__card .copyfield > span:not(.sigil) {
   flex: 1;
+  min-width: 0;
   overflow-x: auto;
   white-space: nowrap;
 }
@@ -695,7 +698,7 @@ samp {
   top: 0;
   z-index: 100;
   backdrop-filter: blur(14px);
-  background: rgba(8, 8, 10, 0.72);
+  background: rgba(18, 19, 24, 0.72);
   border-bottom: 1px solid var(--line-soft);
 }
 .nav__inner {

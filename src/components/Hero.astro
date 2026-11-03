@@ -1,4 +1,6 @@
 ---
+import { SOPSY_VERSION } from "../constants";
+
 // Two install paths — Homebrew first (the recommended, prebuilt route).
 const installs = [
   "brew trust kigster/tap",
@@ -16,7 +18,7 @@ const lines = [
   { c: "ok", t: "  ✔ created Secure Enclave identity (Touch ID)" },
   { c: "cmt", t: "  ℹ private key never leaves the Enclave" },
   { c: "key", t: "  ➜ public recipient  age1se1q2a48h0242huw4…" },
-  { c: "cmt", t: "  > Your name (key owner):  Konstantin" },
+  { c: "cmt", t: "  > Your name (key owner):  Grace Hopper" },
   { c: "ok", t: "  ✔ .sops.yaml   ✔ .env.example   ✔ .env.encrypted" },
   { c: "ok", t: "  ✔ .gitignore   ✔ .sopsy.yml   ✔ .sopsy.sha" },
   { c: "cmt", t: "  > Set up a break-glass emergency key?  Yes" },
@@ -32,15 +34,14 @@ const lines = [
 <section class="hero">
   <div class="container">
     <p class="eyebrow hero__kicker" data-reveal>
-      A CLI for SOPS · age · Apple Secure Enclave<br />YubiKey Linux Support
-      Coming Soon
+      A CLI for SOPS · age · Secure Enclave · YubiKey<br />macOS + Linux
     </p>
 
     <h1 data-reveal>
       Encrypted <span class="swap">secrets</span> you can actually commit to <span
         class="swap">Git</span
       >.<br />
-      <em>Decrypt with Touch ID</em>
+      <em>Decrypt with Touch ID or a YubiKey</em>
     </h1>
     <br />
     <h3 class="subhead">
@@ -55,19 +56,22 @@ const lines = [
           > files — values only, names left in the clear. The file stays diffable
           and git blame-able, so you can see exactly when each key appeared and who
           added it, then commit the whole thing without flinching. Every teammate's
-          key is minted inside their&nbsp;
+          key is minted in hardware: their&nbsp;
           <a
             class="highlight"
             href="https://support.apple.com/guide/security/the-secure-enclave-sec59b0b31ff/web"
             target="_blank">Mac's Secure Enclave</a
-          >.&nbsp;
+          >, or a&nbsp;<a
+            class="highlight"
+            href="https://github.com/str4d/age-plugin-yubikey"
+            target="_blank">YubiKey</a
+          > on Intel Macs and Linux.
           <br /><br />
 
-          Secrets decrypt only on Touch ID, unless you used the&nbsp;<code
-            class="mono">--without-touch-id</code
-          > flag when you join. The private key never leaves the chip, and any current
-          member can grant the next one access. No server. No subscription. No plaintext
-          in Slack — or anywhere for that matter.
+          Secrets decrypt only with Touch ID, or a YubiKey PIN and a touch. The
+          private key never leaves the chip, and any current member can grant
+          the next one access. No server. No subscription. No plaintext in Slack
+          — or anywhere for that matter.
         </p>
 
         <div class="hero__actions">
@@ -125,10 +129,11 @@ const lines = [
           </p>
 
           <div class="badges" aria-label="Project badges">
-            <span class="badge">crate <b>v1.1</b></span>
+            <span class="badge">crate <b>v{SOPSY_VERSION}</b></span>
             <span class="badge">CI <b class="lime">passing</b></span>
             <span class="badge">license <b>MIT / Apache-2.0</b></span>
-            <span class="badge">🍎 <b>Apple Silicon</b></span>
+            <span class="badge">os <b>macOS · Linux</b></span>
+            <span class="badge">🔑 <b>YubiKey</b></span>
             <span class="badge">key <b>never leaves the chip</b></span>
           </div>
         </div>
