@@ -1277,9 +1277,16 @@ samp {
 .marquee {
   border-top: 1px solid var(--line-soft);
   border-bottom: 1px solid var(--line-soft);
-  overflow: hidden;
   padding-block: 1.4rem;
   background: rgba(0, 0, 0, 0.2);
+}
+/* On a wide monitor a full-width ticker reads as noise: cap the moving text
+   at 1400px, centred, and fade it out at its own edges. Below 1400px this is
+   the full width, as before. */
+.marquee__viewport {
+  max-width: 1400px;
+  margin-inline: auto;
+  overflow: hidden;
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent,
