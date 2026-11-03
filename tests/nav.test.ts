@@ -15,6 +15,16 @@ describe("nav", () => {
     expect(nav).toContain('const repo = "https://github.com/kigster/sopsy"');
   });
 
+  it("styles the crates.io link like the other nav links", () => {
+    expect(nav).toMatch(/<a class="nav__crate" href=\{crate\}/);
+    expect(css).toMatch(/\.nav__links a,\s*\.nav__crate \{/);
+    expect(css).toMatch(/\.nav__links a:hover,\s*\.nav__crate:hover \{/);
+  });
+
+  it("pulls the first section 40px closer to the nav", () => {
+    expect(css).toMatch(/main > section:first-of-type \{\s*margin-top: -40px;/);
+  });
+
   it("no longer shows a GitHub text button", () => {
     expect(nav).not.toContain("GitHub ↗");
   });
