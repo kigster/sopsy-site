@@ -1,0 +1,103 @@
+---
+import { team, dennisPolicy, cachingTips } from "../data/teams";
+---
+
+<section class="section" id="teams">
+  <div class="container">
+    <div data-reveal style="max-width:80ch">
+      <p class="eyebrow">Team scenarios</p>
+      <h2 class="section-title">One team, four people, one policy.</h2>
+      <p class="section-lead">
+        Ada, the VP of Engineering, sets the policy and holds the break-glass
+        key. Alan prefers a YubiKey. Grace prefers the Secure Enclave on her
+        MacBook. Dennis works on Linux and does not want hardware keys. Ada's
+        <code class="mono lime">--allow-stores</code> choice decides whether Dennis
+        can join at all, and with what.
+      </p>
+    </div>
+
+    <div class="team__grid" data-reveal>
+      {
+        team.map((m) => (
+          <article class={`team__card team__card--${m.accent}`}>
+            <div class="team__who">
+              <h3>{m.name}</h3>
+              <span class="team__store">{m.store}</span>
+            </div>
+            <p class="team__role">{m.role}</p>
+            <div class="copyfield">
+              <span class="sigil">$</span>
+              <span>{m.cmd}</span>
+              <button data-copy={m.cmd} aria-label={`Copy: ${m.cmd}`}>
+                copy
+              </button>
+            </div>
+            <ul class="team__notes">
+              {m.notes.map((n) => (
+                <li>
+                  <Fragment set:html={n} />
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="policy" data-reveal>
+      <h3 class="policy__title">
+        Dennis joins from Linux: Ada's policy decides
+      </h3>
+      <div class="policy__table" role="table" aria-label="Dennis's options">
+        <div class="policy__row policy__row--head" role="row">
+          <span role="columnheader">Ada ran init with</span>
+          <span role="columnheader">Dennis runs</span>
+          <span role="columnheader">Result</span>
+        </div>
+        {
+          dennisPolicy.map((r) => (
+            <div class="policy__row" role="row">
+              <code role="cell">{r.policy}</code>
+              <code role="cell">{r.cmd}</code>
+              <span
+                role="cell"
+                class={`policy__result policy__result--${r.tone}`}
+              >
+                {r.result}
+              </span>
+            </div>
+          ))
+        }
+      </div>
+      <p class="policy__foot">
+        The repository order never puts a weaker store first: even under <code
+          >-A any</code
+        >, Grace's and Alan's <code>auto</code> still picks hardware. Changing the
+        policy later is a reviewed pull request to <code>.sopsy.yml</code>.
+      </p>
+    </div>
+
+    <div class="caching" data-reveal>
+      <h3 class="policy__title">Many worktrees, many prompts?</h3>
+      <p class="section-lead">
+        When every worktree's <code class="mono">.envrc</code> runs <code
+          class="mono">sopsy decrypt</code
+        >, every new shell means another Touch ID. Three ways out, from least to
+        most strict:
+      </p>
+      <div class="guard__grid">
+        {
+          cachingTips.map((t) => (
+            <article class="guard__card guard__card--check">
+              <h4>{t.h}</h4>
+              <p>
+                <Fragment set:html={t.p} />
+              </p>
+              <code class="team__tipcmd">{t.cmd}</code>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>

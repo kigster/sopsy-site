@@ -52,6 +52,7 @@ src/
   pages/index.astro      # the single page — imports and orders every section
   layouts/Base.astro     # <head>, Google Fonts, and the scroll-reveal + copy JS
   components/*.astro      # one component per page section (Hero, Features, …)
+  data/*.ts               # data for the "What's new in 2.0" and team-scenario sections
   styles/global.css       # design system: tokens, type scale, all section styles
 public/                   # static assets served as-is (favicon.svg, etc.)
 astro.config.mjs          # site URL + build options
@@ -70,6 +71,7 @@ change copy, edit that array — you rarely touch markup.
   `src/components/`. For example, the command cards live in `Commands.astro`'s `cmds`
   array; features in `Features.astro`'s `features` array; the key-flow diagram in
   `Statement.astro`'s `steps` array. Edit the strings and save.
+- **"What's new" and team scenarios** — these two sections read their cards from `src/data/whatsnew.ts` and `src/data/teams.ts`. `tests/data.test.ts` checks every command there against the subcommands and flags in the sopsy README, so add a flag to its allow-list only after confirming it exists upstream.
 - **Add a new section** — create `src/components/MySection.astro`, then import it in
   `src/pages/index.astro` and place `<MySection />` where you want it in the order.
 - **Restyle** — design tokens (colors, fonts, the fluid type scale) and every section's

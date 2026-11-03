@@ -453,7 +453,7 @@ samp {
   }
 }
 
-/* --------------- defense in depth (setup pre-commit / CI) -------------- */
+/* ---------------- defense in depth (pre-commit hook / CI) -------------- */
 .guard__cmds {
   margin-top: 1.8rem;
   display: flex;
@@ -557,6 +557,229 @@ samp {
   }
 }
 
+/* ------------------------- what's new in 2.0 --------------------------- */
+.new__grid {
+  margin-top: clamp(2.2rem, 5vw, 3.4rem);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line-soft);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.new__card {
+  min-width: 0;
+  background: var(--ink-1);
+  padding: 1.8rem 1.6rem 1.9rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.new__card h3 {
+  font-size: calc(var(--step-1) * 0.7);
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.02em;
+  padding-right: 6rem;
+}
+.new__card p {
+  color: var(--bone-dim);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+.new__card p code {
+  color: var(--lime);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+.new__cmds {
+  margin-top: auto;
+  padding-top: 1.1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+}
+.new__cmds .copyfield,
+.team__card .copyfield {
+  display: flex;
+  width: 100%;
+  font-size: 0.78rem;
+}
+.new__cmds .copyfield > span:not(.sigil),
+.team__card .copyfield > span:not(.sigil) {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+@media (max-width: 780px) {
+  .new__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --------------------------- team scenarios ---------------------------- */
+#teams .section-lead {
+  max-width: none;
+}
+.team__grid {
+  margin-top: clamp(2.2rem, 5vw, 3.4rem);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.team__card {
+  min-width: 0;
+  padding: 1.4rem 1.4rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--ink-1), var(--ink));
+  position: relative;
+  overflow: hidden;
+}
+.team__card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: var(--bone-faint);
+}
+.team__card--policy::before {
+  background: var(--amber);
+}
+.team__card--yubikey::before {
+  background: var(--rust);
+}
+.team__card--enclave::before {
+  background: var(--lime);
+}
+.team__card--linux::before {
+  background: var(--blue);
+}
+.team__who {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.team__who h3 {
+  font-size: calc(var(--step-1) * 0.8);
+  letter-spacing: -0.02em;
+}
+.team__store {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+  padding: 0.2em 0.55em;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.team__role {
+  margin: 0.2rem 0 1rem;
+  font-size: 0.82rem;
+  color: var(--bone-faint);
+}
+.team__notes {
+  margin-top: 1rem;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.45rem;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--bone-dim);
+}
+.team__notes code,
+.policy code,
+.policy__foot code {
+  color: var(--lime);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+.team__notes b {
+  color: var(--amber);
+}
+.team__tipcmd {
+  display: block;
+  margin-top: 0.9rem;
+  padding: 0.55rem 0.75rem;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--bone);
+  word-break: break-word;
+}
+.policy,
+.caching {
+  margin-top: clamp(2.4rem, 5vw, 3.6rem);
+}
+.policy__title {
+  font-size: calc(var(--step-1) * 0.85);
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+.policy__table {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.policy__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1.6fr);
+  gap: 1rem;
+  padding: 0.9rem 1.1rem;
+  border-top: 1px solid var(--line-soft);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  align-items: start;
+}
+.policy__row > code {
+  word-break: break-word;
+}
+.policy__row--head {
+  border-top: 0;
+  background: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+}
+.policy__result {
+  color: var(--bone-dim);
+}
+.policy__result--refused {
+  color: var(--rose);
+}
+.policy__result--warn {
+  color: var(--amber);
+}
+.policy__foot {
+  margin-top: 1rem;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--bone-dim);
+}
+.caching .guard__grid {
+  margin-top: 1.4rem;
+}
+@media (max-width: 780px) {
+  .team__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .policy__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+  }
+  .policy__row--head {
+    display: none;
+  }
+}
+
 /* --------------------------- scroll reveal ----------------------------- */
 [data-reveal] {
   opacity: 0;
@@ -621,6 +844,9 @@ samp {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.2rem;
+}
+.install__card--wide {
+  grid-column: 1 / -1;
 }
 @media (max-width: 700px) {
   .install__grid {

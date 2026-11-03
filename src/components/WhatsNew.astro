@@ -1,0 +1,51 @@
+---
+import { SOPSY_VERSION } from "../constants";
+import { whatsNew } from "../data/whatsnew";
+---
+
+<section class="section" id="new">
+  <div class="container">
+    <div class="versus__head" data-reveal>
+      <div>
+        <p class="eyebrow eyebrow--lime">What's new in {SOPSY_VERSION}</p>
+        <h2 class="section-title">
+          Any key store. Fewer prompts. No plaintext on disk.
+        </h2>
+      </div>
+      <p class="section-lead">
+        2.0 lets every member keep their key where it suits them, inside the
+        bounds the repository sets. It adds commands that change one secret or
+        feed secrets straight to a process, and it is honest about what rotating
+        a key does and does not change.
+      </p>
+    </div>
+
+    <div class="new__grid" data-reveal>
+      {
+        whatsNew.map((n) => (
+          <article class="new__card">
+            <span class="feature__tag">{n.tag}</span>
+            <span class="feature__icon" aria-hidden="true">
+              {n.icon}
+            </span>
+            <h3>{n.title}</h3>
+            <p>
+              <Fragment set:html={n.body} />
+            </p>
+            <div class="new__cmds">
+              {n.cmds.map((cmd) => (
+                <div class="copyfield">
+                  <span class="sigil">$</span>
+                  <span>{cmd}</span>
+                  <button data-copy={cmd} aria-label={`Copy: ${cmd}`}>
+                    copy
+                  </button>
+                </div>
+              ))}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
