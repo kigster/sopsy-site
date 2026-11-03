@@ -648,7 +648,9 @@ const edges = scenarios.flatMap((sc) =>
 
 <style>
   .fd {
-    padding-block: clamp(2.5rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem);
+    /* top floor 3.5rem: the page pulls its first section up 40px, and a
+       phone still needs ~16px between the nav and the diagram */
+    padding-block: clamp(3.5rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem);
   }
   .fd__title {
     font-size: var(--step-3);
