@@ -27,7 +27,7 @@ build: setup
 
 # Preview the production build locally
 preview: build
-    @bun run preview
+    @bun run preview --host
 
 # Format the whole repo with Prettier
 format: setup

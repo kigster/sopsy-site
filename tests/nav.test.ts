@@ -60,3 +60,14 @@ describe("marquee", () => {
     );
   });
 });
+
+describe("flow diagram", () => {
+  it("has a pause button that reports its state", async () => {
+    const fd = await read("src/components/FlowDiagram.astro");
+    expect(fd).toMatch(
+      /class="fd__pause"\s+aria-pressed="false"\s+aria-label="Pause animation"/,
+    );
+    expect(fd).toContain("svg?.pauseAnimations()");
+    expect(fd).toContain(".fd__stage[data-paused] .fd__flow");
+  });
+});
