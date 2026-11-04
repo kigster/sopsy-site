@@ -18,3 +18,10 @@ coverage/
 sopsy-init.png
 .claude/
 coverage/
+.env.*
+!.env.example
+!*.encrypted
+*.key
+*.pem
+*.private
+*.public

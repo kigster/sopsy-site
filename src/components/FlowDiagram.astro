@@ -263,24 +263,54 @@ const edges = scenarios.flatMap((sc) =>
       </h2>
     </div>
 
-    <div class="fd__tabs" role="tablist" aria-label="sopsy scenarios">
-      {
-        scenarios.map((sc, i) => (
-          <button
-            type="button"
-            role="tab"
-            id={`fd-tab-${sc.id}`}
-            class="fd__tab"
-            aria-selected={i === 0 ? "true" : "false"}
-            aria-controls="fd-panel"
-            tabindex={i === 0 ? 0 : -1}
-            data-scenario={sc.id}
-          >
-            <span class="fd__tabnum">{i + 1}</span>
-            {sc.tab}
-          </button>
-        ))
-      }
+    <div class="fd__bar">
+      <div class="fd__tabs" role="tablist" aria-label="sopsy scenarios">
+        {
+          scenarios.map((sc, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`fd-tab-${sc.id}`}
+              class="fd__tab"
+              aria-selected={i === 0 ? "true" : "false"}
+              aria-controls="fd-panel"
+              tabindex={i === 0 ? 0 : -1}
+              data-scenario={sc.id}
+            >
+              <span class="fd__tabnum">{i + 1}</span>
+              {sc.tab}
+            </button>
+          ))
+        }
+      </div>
+      <!-- Pause / play: auto-moving content needs a way to stop it (WCAG 2.2.2). -->
+      <button
+        type="button"
+        class="fd__pause"
+        aria-pressed="false"
+        aria-label="Pause animation"
+        title="Pause animation"
+      >
+        <svg
+          class="fd__pause-icon"
+          viewBox="0 0 16 16"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <rect x="3.5" y="2.5" width="3" height="11" rx="1"></rect>
+          <rect x="9.5" y="2.5" width="3" height="11" rx="1"></rect>
+        </svg>
+        <svg
+          class="fd__play-icon"
+          viewBox="0 0 16 16"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            d="M4.5 2.6v10.8a.8.8 0 0 0 1.2.7l8.6-5.4a.8.8 0 0 0 0-1.4L5.7 1.9a.8.8 0 0 0-1.2.7Z"
+          ></path>
+        </svg>
+      </button>
     </div>
 
     <div
@@ -516,6 +546,7 @@ const edges = scenarios.flatMap((sc) =>
       let timer: number | undefined;
       let visible = false;
       let pinned = false; // the visitor picked a tab: loop it, stop touring
+      let paused = false; // the visitor pressed pause: hold everything still
 
       const edgesOf = (s: string) => [
         ...stage.querySelectorAll<SVGGElement>(
@@ -601,7 +632,7 @@ const edges = scenarios.flatMap((sc) =>
 
       function schedule(ms: number) {
         clearTimeout(timer);
-        if (reduced || !visible || document.hidden) return;
+        if (reduced || paused || !visible || document.hidden) return;
         timer = window.setTimeout(tick, ms);
       }
 
@@ -617,6 +648,28 @@ const edges = scenarios.flatMap((sc) =>
           pinned = true;
           select(order[(i + d + order.length) % order.length], true);
         });
+      });
+
+      // Pause freezes the step timer, the SVG packet motion and the CSS dash
+      // flow; play picks up from the same step. Hidden under reduced motion,
+      // where nothing moves anyway.
+      const pauseBtn = document.querySelector<HTMLButtonElement>(".fd__pause");
+      const svg = stage.querySelector<SVGSVGElement>(".fd__svg");
+      if (pauseBtn && reduced) pauseBtn.hidden = true;
+      pauseBtn?.addEventListener("click", () => {
+        paused = !paused;
+        const label = paused ? "Play animation" : "Pause animation";
+        pauseBtn.setAttribute("aria-pressed", String(paused));
+        pauseBtn.setAttribute("aria-label", label);
+        pauseBtn.title = label;
+        stage.toggleAttribute("data-paused", paused);
+        if (paused) {
+          clearTimeout(timer);
+          svg?.pauseAnimations();
+        } else {
+          svg?.unpauseAnimations();
+          schedule(300);
+        }
       });
 
       const io = new IntersectionObserver(
@@ -662,12 +715,53 @@ const edges = scenarios.flatMap((sc) =>
     color: var(--lime);
   }
 
-  /* ----- tabs ----- */
+  /* ----- tabs + pause ----- */
+  .fd__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-block: 1.8rem 1.2rem;
+  }
   .fd__tabs {
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
-    margin-block: 1.8rem 1.2rem;
+  }
+  .fd__pause {
+    margin-left: auto;
+    flex-shrink: 0;
+    display: inline-grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    color: var(--bone-dim);
+    background: var(--ink-2);
+    border: 1px solid var(--line);
+    cursor: pointer;
+    transition:
+      color 0.2s,
+      border-color 0.2s;
+  }
+  .fd__pause:hover {
+    color: var(--bone);
+    border-color: var(--line-hot);
+  }
+  .fd__pause:focus-visible {
+    outline: 2px solid var(--rust);
+    outline-offset: 3px;
+  }
+  .fd__pause svg {
+    width: 14px;
+    height: 14px;
+  }
+  .fd__pause[hidden],
+  .fd__pause[aria-pressed="false"] .fd__play-icon,
+  .fd__pause[aria-pressed="true"] .fd__pause-icon {
+    display: none;
+  }
+  .fd__stage[data-paused] .fd__flow {
+    animation-play-state: paused;
   }
   .fd__tab {
     display: inline-flex;

@@ -768,6 +768,11 @@ samp {
 .caching .guard__grid {
   margin-top: 1.4rem;
 }
+
+.top-30 {
+  margin-top: 30px;
+}
+
 @media (max-width: 780px) {
   .team__grid {
     grid-template-columns: minmax(0, 1fr);
