@@ -82,6 +82,15 @@ describe("nav layout", () => {
     const qs = await read("src/components/QuickStart.astro");
     expect(qs).toMatch(/<div id="demo"[^>]*>[\s\S]*class="qs__tabs"/);
   });
+
+  it("gives each recording tab a link that can be forwarded", async () => {
+    const qs = await read("src/components/QuickStart.astro");
+    expect(qs).toContain('id: "enclave"');
+    expect(qs).toContain('id: "yubikey"');
+    expect(qs).toContain("id={`demo-${c.id}`}"); // → /start#demo-yubikey
+    expect(qs).toContain("history.replaceState(history.state");
+    expect(qs).toContain('window.addEventListener("hashchange"');
+  });
 });
 
 describe("page transitions", () => {

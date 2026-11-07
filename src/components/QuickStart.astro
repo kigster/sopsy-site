@@ -34,7 +34,8 @@ const steps = [
   },
 ];
 
-// Demo recordings, one tab each. Hidden panels keep loading="lazy", so a
+// Demo recordings, one tab each. Each tab's id is its shareable link:
+// /start#demo-enclave and /start#demo-yubikey open that tab. Hidden panels keep loading="lazy", so a
 // GIF is only fetched once its tab is opened.
 const casts = [
   {
@@ -85,7 +86,7 @@ const casts = [
             <button
               type="button"
               role="tab"
-              id={`qs-tab-${c.id}`}
+              id={`demo-${c.id}`}
               class="qs__tab"
               aria-selected={i === 0 ? "true" : "false"}
               aria-controls={`qs-panel-${c.id}`}
@@ -102,7 +103,7 @@ const casts = [
             class="qs__cast"
             id={`qs-panel-${c.id}`}
             role="tabpanel"
-            aria-labelledby={`qs-tab-${c.id}`}
+            aria-labelledby={`demo-${c.id}`}
             tabindex="0"
             hidden={i !== 0}
           >
@@ -125,6 +126,11 @@ const casts = [
   // The client router keeps this module alive, so bind on every page load;
   // a page without the tabs is a no-op.
   document.addEventListener("astro:page-load", bind);
+  // A same-page link to another tab (#demo-yubikey) selects it too.
+  window.addEventListener("hashchange", () => openFromHash());
+
+  // Set by bind() for the page that has the tabs.
+  let openFromHash: () => void = () => {};
 
   // A GIF that has already played keeps its place when hidden. Pointing the
   // <img> at a fresh blob: URL of the same bytes makes the browser decode it
@@ -155,7 +161,12 @@ const casts = [
       ...document.querySelectorAll<HTMLButtonElement>("#demo .qs__tab"),
     ];
     if (!tabs.length || tabs[0].dataset.bound) return;
-    const select = (next: HTMLButtonElement) => {
+    const select = (next: HTMLButtonElement, share = true) => {
+      // Keep the address bar on the open tab, so the URL can be forwarded.
+      // replaceState neither scrolls nor adds a history entry; keeping
+      // history.state keeps the client router's own bookkeeping.
+      if (share && location.hash !== `#${next.id}`)
+        history.replaceState(history.state, "", `#${next.id}`);
       if (next.getAttribute("aria-selected") === "true") return;
       for (const t of tabs) {
         const on = t === next;
@@ -168,6 +179,15 @@ const casts = [
         if (on && img) restart(img);
       }
     };
+    openFromHash = () => {
+      const tab = tabs.find((t) => `#${t.id}` === location.hash);
+      if (!tab) return;
+      select(tab, false);
+      // Land like #demo does (heading and tabs under the nav). The browser's
+      // own jump to the tab button lands lower, half under the sticky nav.
+      document.getElementById("demo")?.scrollIntoView();
+    };
+    openFromHash();
     tabs.forEach((tab, i) => {
       tab.dataset.bound = "1";
       tab.addEventListener("click", () => select(tab));
