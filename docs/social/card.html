@@ -1,0 +1,179 @@
+<!doctype html>
+<!--
+  Source for the sopsy 2.0 social preview images. bin/social-cards renders it
+  with headless Chrome at each size; ?fmt= picks the layout:
+    og        1200×630   LinkedIn, X, Slack, iMessage (og:image / twitter:image)
+    square    1080×1080  Instagram feed post
+    portrait  1080×1350  Instagram feed post, taller
+  The logo already carries the name, so the card never repeats "sopsy".
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800&family=JetBrains+Mono:wght@500;700&display=block"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #121318;
+        --ink-2: #1b1c24;
+        --ink-3: #22232d;
+        --bone: #ece8e1;
+        --bone-dim: #aba69b;
+        --rust: #ff5a30;
+        --lime: #c8f24e;
+        --line: rgba(236, 232, 225, 0.12);
+      }
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: var(--w);
+        height: var(--h);
+        overflow: hidden;
+      }
+      body {
+        /* the site header's shade: dark, a step lighter than the page */
+        background: var(--ink-2);
+        color: var(--bone);
+        font-family: "Inter", sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: var(--pad);
+      }
+      /* faint terminal grid, like the site's hero */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line) 1px, transparent 1px);
+        background-size: 48px 48px;
+        mask-image: linear-gradient(180deg, #000, transparent 70%);
+        opacity: 0.35;
+        pointer-events: none;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+      }
+      .logo {
+        width: var(--logo);
+        /* the PNG has ~9% transparent margin; pull it flush with the text */
+        margin: calc(var(--logo) * -0.09) 0 calc(var(--logo) * -0.06)
+          calc(var(--logo) * -0.09);
+        /* follows the PNG's alpha, so it sits behind the letters, not a box */
+        filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.55));
+      }
+      .badge {
+        font:
+          700 var(--badge) / 1 "JetBrains Mono",
+          monospace;
+        letter-spacing: 0.08em;
+        color: var(--ink);
+        background: var(--lime);
+        padding: 0.45em 0.7em;
+        border-radius: 6px;
+        white-space: nowrap;
+      }
+      h1 {
+        position: relative;
+        font-weight: 800;
+        font-size: var(--h1);
+        line-height: 1.04;
+        letter-spacing: -0.035em;
+        text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.55);
+      }
+      /* one phrase per line, never wrapped: size --h1 to fit the width */
+      h1 span,
+      h1 {
+        white-space: nowrap;
+      }
+      h1 .a {
+        color: var(--lime);
+      }
+      h1 .b {
+        color: var(--rust);
+      }
+      .foot {
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 2rem;
+        font:
+          500 var(--small) / 1.35 "JetBrains Mono",
+          monospace;
+        color: var(--bone-dim);
+      }
+      .foot strong {
+        color: var(--bone);
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      body.og {
+        --w: 1200px;
+        --h: 630px;
+        --pad: 56px 64px;
+        --logo: 420px;
+        --badge: 24px;
+        --h1: 76px;
+        --small: 22px;
+      }
+      body.square {
+        --w: 1080px;
+        --h: 1080px;
+        --pad: 80px;
+        --logo: 520px;
+        --badge: 30px;
+        --h1: 92px;
+        --small: 26px;
+      }
+      body.portrait {
+        --w: 1080px;
+        --h: 1350px;
+        --pad: 96px 80px;
+        --logo: 560px;
+        --badge: 32px;
+        --h1: 92px;
+        --small: 28px;
+      }
+      body.square .foot,
+      body.portrait .foot {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top">
+      <img class="logo" src="../../public/sopsy-rect-logo.png" alt="" />
+      <span class="badge">NEW IN 2.0</span>
+    </div>
+    <h1>
+      <span class="a">Any key store.</span><br />
+      Fewer prompts.<br />
+      <span class="b">No plaintext on disk.</span>
+    </h1>
+    <div class="foot">
+      <span
+        >Team secrets encrypted in Git.<br />Keys in the Secure Enclave or on a
+        YubiKey.</span
+      >
+      <strong>sopsy-cli.dev</strong>
+    </div>
+    <script>
+      document.body.className =
+        new URLSearchParams(location.search).get("fmt") || "og";
+    </script>
+  </body>
+</html>
