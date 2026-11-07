@@ -183,6 +183,52 @@ const {
         });
       }
 
+      // Desktop dropdowns in the nav (Guide). Under the hamburger the toggle is
+      // hidden and its links show as plain rows, so this only matters wide.
+      const drops = [...document.querySelectorAll<HTMLElement>(".nav__group")];
+      const setDrop = (g: HTMLElement, open: boolean) => {
+        g.classList.toggle("is-open", open);
+        g.querySelector(".nav__drop")?.setAttribute(
+          "aria-expanded",
+          String(open),
+        );
+      };
+      const closeDrops = () => drops.forEach((g) => setDrop(g, false));
+      drops.forEach((g) => {
+        const btn = g.querySelector<HTMLButtonElement>(".nav__drop")!;
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const open = !g.classList.contains("is-open");
+          closeDrops();
+          setDrop(g, open);
+        });
+        g.addEventListener("keydown", (e) => {
+          const links = [...g.querySelectorAll<HTMLAnchorElement>("a")];
+          const i = links.indexOf(document.activeElement as HTMLAnchorElement);
+          if (e.key === "Escape" && g.classList.contains("is-open")) {
+            e.stopPropagation(); // don't also close the mobile menu
+            setDrop(g, false);
+            btn.focus();
+          } else if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setDrop(g, true);
+            links[(i + 1) % links.length]?.focus();
+          } else if (e.key === "ArrowUp" && i >= 0) {
+            e.preventDefault();
+            links[(i - 1 + links.length) % links.length]?.focus();
+          }
+        });
+        g.addEventListener("focusout", (e) => {
+          const next = e.relatedTarget as Node | null;
+          if (next && !g.contains(next)) setDrop(g, false);
+        });
+      });
+      document.addEventListener("click", (e) => {
+        drops.forEach((g) => {
+          if (!g.contains(e.target as Node)) setDrop(g, false);
+        });
+      });
+
       // Scroll reveal — progressively reveals sections + staggered child rows.
       const io = new IntersectionObserver(
         (entries) => {
@@ -208,10 +254,20 @@ const {
         document
           .querySelectorAll<HTMLAnchorElement>("#nav-menu a")
           .forEach((a) => {
-            const on = new URL(a.href).pathname.replace(/\/$/, "") === here;
+            const url = new URL(a.href);
+            // a #hash link (Demo) points into a page, it is not the page
+            const on = !url.hash && url.pathname.replace(/\/$/, "") === here;
             if (on) a.setAttribute("aria-current", "page");
             else a.removeAttribute("aria-current");
           });
+        // a dropdown is "current" when one of its links is
+        document.querySelectorAll(".nav__group").forEach((g) => {
+          g.querySelector(".nav__drop")?.classList.toggle(
+            "is-current",
+            !!g.querySelector('a[aria-current="page"]'),
+          );
+        });
+        closeDrops();
 
         document
           .querySelectorAll("[data-reveal], .checklist")

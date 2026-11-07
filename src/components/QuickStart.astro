@@ -33,6 +33,27 @@ const steps = [
     p: "<code>sopsy run -- bin/rails server</code> decrypts into that one process's environment. Nothing is written to disk.",
   },
 ];
+
+// Demo recordings, one tab each. Hidden panels keep loading="lazy", so a
+// GIF is only fetched once its tab is opened.
+const casts = [
+  {
+    id: "enclave",
+    tab: "sopsy v1 (Secure Enclave)",
+    src: "/sopsy-demo-enclave.gif",
+    alt: "Terminal recording of the full sopsy workflow with Secure Enclave keys: init, edit, check, commit, join, and approve",
+    width: 1380,
+    height: 860,
+  },
+  {
+    id: "yubikey",
+    tab: "sopsy v2 (With YubiKey Support)",
+    src: "/sopsy-demo-yubikey.gif",
+    alt: "Terminal recording of sopsy v2 with a YubiKey: Grace sets up the repository, Alan joins from Linux, and Grace approves",
+    width: 1302,
+    height: 963,
+  },
+];
 ---
 
 <section class="section" id="quickstart">
@@ -58,15 +79,115 @@ const steps = [
 
     <div id="demo" data-reveal>
       <h3 class="qs__cast-title">Watch the entire process live just below…</h3>
-      <div class="qs__cast">
-        <img
-          src="/sopsy-demo.gif"
-          alt="Terminal recording of the full sopsy workflow: init, edit, check, commit, join, and approve"
-          width="1380"
-          height="860"
-          loading="lazy"
-        />
+      <div class="qs__tabs" role="tablist" aria-label="sopsy demo recordings">
+        {
+          casts.map((c, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`qs-tab-${c.id}`}
+              class="qs__tab"
+              aria-selected={i === 0 ? "true" : "false"}
+              aria-controls={`qs-panel-${c.id}`}
+              tabindex={i === 0 ? 0 : -1}
+            >
+              {c.tab}
+            </button>
+          ))
+        }
       </div>
+      {
+        casts.map((c, i) => (
+          <div
+            class="qs__cast"
+            id={`qs-panel-${c.id}`}
+            role="tabpanel"
+            aria-labelledby={`qs-tab-${c.id}`}
+            tabindex="0"
+            hidden={i !== 0}
+          >
+            <img
+              src={c.src}
+              alt={c.alt}
+              width={c.width}
+              height={c.height}
+              loading="lazy"
+            />
+          </div>
+        ))
+      }
     </div>
   </div>
 </section>
+
+<script>
+  // Accessible tabs for the demo recordings: click, arrows, Home and End.
+  // The client router keeps this module alive, so bind on every page load;
+  // a page without the tabs is a no-op.
+  document.addEventListener("astro:page-load", bind);
+
+  // A GIF that has already played keeps its place when hidden. Pointing the
+  // <img> at a fresh blob: URL of the same bytes makes the browser decode it
+  // anew, so it starts from the first frame. fetch() reads the bytes from
+  // the HTTP cache, and each GIF is fetched at most once.
+  const bytes = new Map<string, Promise<Blob>>();
+  const restart = async (img: HTMLImageElement) => {
+    if (!img.complete || !img.naturalWidth) return; // first load starts at 0
+    const src = img.dataset.src ?? img.currentSrc;
+    img.dataset.src = src;
+    if (!bytes.has(src))
+      bytes.set(
+        src,
+        fetch(src).then((r) => (r.ok ? r.blob() : Promise.reject(r.status))),
+      );
+    try {
+      const url = URL.createObjectURL(await bytes.get(src)!);
+      const old = img.src;
+      img.src = url;
+      if (old.startsWith("blob:")) URL.revokeObjectURL(old);
+    } catch {
+      bytes.delete(src); // keep showing it where it is; retry next time
+    }
+  };
+
+  function bind() {
+    const tabs = [
+      ...document.querySelectorAll<HTMLButtonElement>("#demo .qs__tab"),
+    ];
+    if (!tabs.length || tabs[0].dataset.bound) return;
+    const select = (next: HTMLButtonElement) => {
+      if (next.getAttribute("aria-selected") === "true") return;
+      for (const t of tabs) {
+        const on = t === next;
+        t.setAttribute("aria-selected", String(on));
+        t.tabIndex = on ? 0 : -1;
+        const panel = document.getElementById(t.getAttribute("aria-controls")!);
+        if (!panel) continue;
+        panel.hidden = !on;
+        const img = panel.querySelector("img");
+        if (on && img) restart(img);
+      }
+    };
+    tabs.forEach((tab, i) => {
+      tab.dataset.bound = "1";
+      tab.addEventListener("click", () => select(tab));
+      tab.addEventListener("keydown", (e) => {
+        const n = tabs.length;
+        const to =
+          e.key === "ArrowRight"
+            ? tabs[(i + 1) % n]
+            : e.key === "ArrowLeft"
+              ? tabs[(i - 1 + n) % n]
+              : e.key === "Home"
+                ? tabs[0]
+                : e.key === "End"
+                  ? tabs[n - 1]
+                  : null;
+        if (!to) return;
+        e.preventDefault();
+        select(to);
+        to.focus();
+      });
+    });
+  }
+</script>

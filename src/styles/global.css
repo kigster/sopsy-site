@@ -1004,6 +1004,84 @@ samp {
   gap: 0.7rem;
 }
 
+/* Guide dropdown — a chip like the links, with a panel of links beneath */
+.nav__group {
+  position: relative;
+}
+.nav__drop {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--bone-dim);
+  letter-spacing: 0.02em;
+  padding: 0.42rem 0.6rem 0.42rem 0.8rem;
+  border-radius: 4px;
+  background: var(--ink-4);
+  border: 1px solid var(--ink-1);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background 0.15s,
+    border-color 0.15s;
+}
+.nav__drop:hover,
+.nav__group.is-open .nav__drop {
+  color: #fff;
+  background: var(--rust);
+  border-color: var(--rust-deep);
+}
+.nav__drop:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 2px;
+}
+.nav__drop.is-current {
+  color: var(--bone);
+  border-color: var(--rust);
+}
+.nav__drop svg {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.2s ease;
+}
+.nav__group.is-open .nav__drop svg {
+  transform: rotate(180deg);
+}
+.nav__sub {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 11rem;
+  display: none;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.45rem;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.7);
+}
+.nav__group.is-open .nav__sub {
+  display: flex;
+}
+/* under the hamburger: no toggle, the Guide links are ordinary rows */
+@media (max-width: 1199px) {
+  .nav__drop {
+    display: none;
+  }
+  .nav__group,
+  .nav__group .nav__sub,
+  .nav__group.is-open .nav__sub {
+    display: contents;
+  }
+  /* "Commands" ends its group, not the menu: keep its row divider */
+  .nav__links .nav__sub a:last-child {
+    border-bottom: 1px solid var(--line-soft);
+  }
+}
+
 /* GitHub mark — an icon button, so the link bar keeps its room */
 .nav__gh {
   display: inline-grid;
@@ -2154,7 +2232,41 @@ samp {
   scroll-margin-top: 88px;
 }
 
-/* Full-width demo recording (currently the sopsy-demo.gif). */
+/* Tabs above the demo recordings (one per sopsy version). */
+.qs__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.qs__tab {
+  font: 600 var(--step-0) / 1 var(--font-display);
+  color: var(--bone-dim);
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    background 0.2s;
+}
+.qs__tab:hover {
+  color: var(--bone);
+  border-color: var(--line-hot);
+}
+.qs__tab:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 3px;
+}
+.qs__tab[aria-selected="true"] {
+  color: var(--bone);
+  background: var(--ink-3);
+  border-color: var(--rust);
+}
+
+/* Full-width demo recording, one per tab panel. */
 .qs__cast {
   width: 100%;
   border: 2px solid var(--line);
@@ -2168,8 +2280,11 @@ samp {
   border: 0;
   border-radius: inherit;
 }
-/* the GIF is 1380px wide natively — always fill the container (1298px max)
-   and keep shrinking with the viewport; height follows the 1380:860 ratio */
+.qs__cast[hidden] {
+  display: none;
+}
+/* the GIFs are 1380px and 1302px wide natively; always fill the container (1298px max)
+   and keep shrinking with the viewport; height follows each GIF's own ratio */
 .qs__cast img {
   display: block;
   width: 100%;

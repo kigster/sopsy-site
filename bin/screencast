@@ -1,0 +1,211 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Plays a scripted terminal session for screen recordings: shows a prompt,
+# "types" each command like a person (with the odd typo, fixed with a
+# backspace), then really runs it with this terminal's stdin, stdout and
+# stderr, so interactive prompts (YubiKey PIN, touch, menus) work as usual.
+#
+#   bin/screencast docs/screencast/yubikey.yml
+#   asciinema rec -c "bin/screencast docs/screencast/yubikey.yml" demo.cast
+#
+# The session file is YAML: a list of groups. A group is either a plain list
+# of commands, or a map with any of:
+#
+#   clear:    true            # clear the screen before the group
+#   prompt:   "alan@laptop ~/demo $ "
+#   dir:      /tmp/sopsy-demo # working directory from this group on
+#   env:      { USER: alan }  # extra environment from this group on
+#   pause:    1.5             # seconds to wait before the group
+#   quiet:    true            # run the commands off camera: no prompt, no typing
+#   commands: [ ... ]
+#
+# A command that starts with "#" is typed but not run. "cd DIR" changes the
+# working directory for the commands after it.
+
+require "optparse"
+require "yaml"
+
+# Types text the way a person does.
+class Typist
+  # Neighbouring keys on a QWERTY keyboard, for believable typos.
+  NEIGHBOURS = {
+    "a" => "qwsz", "b" => "vghn", "c" => "xdfv", "d" => "serfcx", "e" => "wsdr",
+    "f" => "drtgvc", "g" => "ftyhbv", "h" => "gyujnb", "i" => "ujko", "j" => "huikmn",
+    "k" => "jiolm", "l" => "kop", "m" => "njk", "n" => "bhjm", "o" => "iklp",
+    "p" => "ol", "q" => "wa", "r" => "edft", "s" => "awedxz", "t" => "rfgy",
+    "u" => "yhji", "v" => "cfgb", "w" => "qase", "x" => "zsdc", "y" => "tghu",
+    "z" => "asx"
+  }.freeze
+
+  # @param out [IO] where the keystrokes go
+  # @param speed [Float] 1.0 is normal; 2.0 types twice as fast
+  # @param typo_rate [Float] chance (0..1) of a typo on each letter
+  # @param rng [Random]
+  def initialize(out:, speed:, typo_rate:, rng:)
+    @out = out
+    @speed = speed
+    @typo_rate = typo_rate
+    @rng = rng
+  end
+
+  # @param text [String]
+  # @return [void]
+  def type(text)
+    text.each_char do |char|
+      typo(char) if typo?(char)
+      key(char)
+      wait(delay_after(char))
+    end
+  end
+
+  # @param seconds [Float]
+  # @return [void]
+  def wait(seconds)
+    sleep(seconds / @speed) if seconds.positive?
+  end
+
+  private
+
+  def typo?(char)
+    NEIGHBOURS.key?(char.downcase) && @rng.rand < @typo_rate
+  end
+
+  def typo(char)
+    wrong = NEIGHBOURS.fetch(char.downcase).chars.sample(random: @rng)
+    key(char == char.upcase ? wrong.upcase : wrong)
+    wait(0.25 + (@rng.rand * 0.35)) # the "oops" moment
+    key("\b \b")
+    wait(0.12)
+  end
+
+  def key(str)
+    @out.print(str)
+    @out.flush
+  end
+
+  def delay_after(char)
+    base = 0.045 + (@rng.rand * 0.085)
+    case char
+    when " " then base + 0.06
+    when "-", "/", ".", "\"" then base + 0.03
+    else base
+    end
+  end
+end
+
+# Plays one session file.
+class Session
+  CLEAR = "\e[H\e[2J"
+
+  # @param groups [Array<Array, Hash>]
+  # @param typist [Typist]
+  # @param out [IO]
+  # @param dry_run [Boolean] type the commands but do not run them
+  # @param step [Boolean] wait for Enter (not echoed) before each command
+  def initialize(groups, typist:, out:, dry_run:, step:)
+    @groups = groups
+    @typist = typist
+    @out = out
+    @dry_run = dry_run
+    @step = step
+    @prompt = "$ "
+    @dir = Dir.pwd
+    @env = {}
+  end
+
+  # @return [Integer] the exit status of the last command run
+  def play
+    status = 0
+    @groups.each { |group| status = play_group(normalize(group)) }
+    @out.print(@prompt)
+    @out.flush
+    @typist.wait(1.5)
+    @out.puts
+    status
+  end
+
+  private
+
+  def normalize(group)
+    return { "commands" => group } if group.is_a?(Array)
+    return group if group.is_a?(Hash) && group["commands"].is_a?(Array)
+
+    raise ArgumentError, "each group must be a list of commands or a map with `commands:` (got #{group.inspect})"
+  end
+
+  def play_group(group)
+    @typist.wait(group.fetch("pause", 0).to_f)
+    @out.print(CLEAR) if group["clear"]
+    @prompt = group["prompt"] if group["prompt"]
+    @dir = File.expand_path(group["dir"]) if group["dir"]
+    @env = @env.merge(group.fetch("env", {}).transform_values(&:to_s))
+
+    status = 0
+    group["commands"].each do |command|
+      status = group["quiet"] ? run_quietly(command.to_s) : play_command(command.to_s)
+    end
+    status
+  end
+
+  def play_command(command)
+    @out.print(@prompt)
+    @out.flush
+    $stdin.noecho(&:gets) if @step && $stdin.tty?
+    @typist.wait(0.6)
+    @typist.type(command)
+    @typist.wait(0.45)
+    @out.puts
+    return 0 if command.start_with?("#") || command.strip.empty?
+    return 0 if @dry_run
+
+    run(command)
+  end
+
+  def run_quietly(command)
+    return 0 if @dry_run
+
+    FileUtils.mkdir_p(@dir)
+    system(@env, "bash", "-c", command, chdir: @dir, out: File::NULL, err: File::NULL)
+    $?.exitstatus || 1
+  end
+
+  def run(command)
+    if (target = command[/\Acd\s+(.+)\z/, 1])
+      @dir = File.expand_path(target.strip, @dir)
+      return 0
+    end
+
+    FileUtils.mkdir_p(@dir)
+    system(@env, "bash", "-c", command, chdir: @dir)
+    @typist.wait(0.8)
+    $?.exitstatus || 1
+  end
+end
+
+options = { speed: 1.0, typo_rate: 0.03, seed: nil, dry_run: false, step: false }
+parser = OptionParser.new do |o|
+  o.banner = "Usage: bin/screencast [options] SESSION.yml"
+  o.on("-n", "--dry-run", "Type the commands but do not run them") { options[:dry_run] = true }
+  o.on("--speed FACTOR", Float, "Typing speed; 2 is twice as fast (default 1)") { |v| options[:speed] = v }
+  o.on("--typo-rate RATE", Float, "Chance of a typo per letter, 0..1 (default 0.03)") { |v| options[:typo_rate] = v }
+  o.on("--seed N", Integer, "Random seed, for a repeatable take") { |v| options[:seed] = v }
+  o.on("--step", "Wait for Enter (not shown) before typing each command") { options[:step] = true }
+end
+parser.parse!
+
+abort(parser.help) unless ARGV.size == 1
+
+require "fileutils"
+require "io/console"
+
+groups = YAML.safe_load_file(ARGV.first, aliases: true)
+abort("#{ARGV.first}: expected a list of groups") unless groups.is_a?(Array)
+
+typist = Typist.new(
+  out: $stdout,
+  speed: options[:speed],
+  typo_rate: options[:typo_rate],
+  rng: options[:seed] ? Random.new(options[:seed]) : Random.new
+)
+exit Session.new(groups, typist: typist, out: $stdout, dry_run: options[:dry_run], step: options[:step]).play

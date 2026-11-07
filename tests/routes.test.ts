@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test";
-import { docRoutes, anchorRedirects } from "../src/routes";
+import { docRoutes, navItems, anchorRedirects } from "../src/routes";
 
 const read = (path: string) =>
   Bun.file(new URL(`../${path}`, import.meta.url)).text();
@@ -11,11 +11,11 @@ const print = await read("src/pages/print.astro");
 const footer = await read("src/components/Footer.astro");
 
 describe("docs routes", () => {
-  it("are listed in nav order with unique slugs", () => {
+  it("are listed in page order with unique slugs", () => {
     expect(docRoutes.map((r) => r.label)).toEqual([
       "Start",
-      "New",
-      "Who?",
+      "New in 2.0",
+      "Overview",
       "Features",
       "Teams",
       "Security",
@@ -44,9 +44,43 @@ describe("docs routes", () => {
   });
 
   it("drive the nav, which persists across transitions", () => {
-    expect(nav).toContain("docRoutes.map");
+    expect(nav).toContain("navItems.map");
     expect(nav).toContain('transition:persist="site-nav"');
     expect(nav).not.toMatch(/href="#/);
+  });
+});
+
+describe("nav layout", () => {
+  it("is Start, Demo, New in 2.0, a Guide menu, Security, Install", () => {
+    expect(navItems.map((i) => i.label)).toEqual([
+      "Start",
+      "Demo",
+      "New in 2.0",
+      "Guide",
+      "Security",
+      "Install",
+    ]);
+    const guide = navItems.find((i) => i.kind === "menu");
+    expect(guide?.kind === "menu" && guide.slugs).toEqual([
+      "why",
+      "features",
+      "teams",
+      "commands",
+    ]);
+  });
+
+  it("reaches every docs route exactly once", () => {
+    const slugs = navItems.flatMap((i) =>
+      i.kind === "menu" ? i.slugs : i.hash ? [] : [i.slug],
+    );
+    expect(slugs.sort()).toEqual(docRoutes.map((r) => r.slug).sort());
+  });
+
+  it("points Demo at the recording tabs on /start", async () => {
+    const demo = navItems.find((i) => i.label === "Demo");
+    expect(demo).toMatchObject({ kind: "link", slug: "start", hash: "demo" });
+    const qs = await read("src/components/QuickStart.astro");
+    expect(qs).toMatch(/<div id="demo"[^>]*>[\s\S]*class="qs__tabs"/);
   });
 });
 

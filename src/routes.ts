@@ -13,7 +13,7 @@ export interface DocRoute {
   anchors: string[];
 }
 
-// Nav order.
+// Page order (also /print's order). The nav's own layout is navItems below.
 export const docRoutes: DocRoute[] = [
   {
     slug: "start",
@@ -23,13 +23,13 @@ export const docRoutes: DocRoute[] = [
   },
   {
     slug: "new",
-    label: "New",
+    label: "New in 2.0",
     title: "What's new in 2.0",
     anchors: ["new"],
   },
   {
     slug: "why",
-    label: "Who?",
+    label: "Overview",
     title: "Who sopsy is for",
     anchors: ["why"],
   },
@@ -64,6 +64,37 @@ export const docRoutes: DocRoute[] = [
     anchors: ["install"],
   },
 ];
+
+/** A top-nav entry: a link to a route (optionally a #hash in it), or a
+ *  dropdown of routes. */
+export type NavItem =
+  | { kind: "link"; slug: string; label: string; hash?: string }
+  | { kind: "menu"; id: string; label: string; slugs: string[] };
+
+const link = (slug: string): NavItem => ({
+  kind: "link",
+  slug,
+  label: docRoutes.find((r) => r.slug === slug)!.label,
+});
+
+// Nav order. Every docs route appears exactly once (tested).
+export const navItems: NavItem[] = [
+  link("start"),
+  { kind: "link", slug: "start", hash: "demo", label: "Demo" },
+  link("new"),
+  {
+    kind: "menu",
+    id: "guide",
+    label: "Guide",
+    slugs: ["why", "features", "teams", "commands"],
+  },
+  link("security"),
+  link("install"),
+];
+
+/** The route a slug names. */
+export const routeBySlug = (slug: string): DocRoute =>
+  docRoutes.find((r) => r.slug === slug)!;
 
 /** Site-relative URL of a route, honoring the configured base. */
 export const routeHref = (slug: string) =>
