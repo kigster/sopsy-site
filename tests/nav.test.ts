@@ -45,6 +45,29 @@ describe("nav", () => {
   });
 });
 
+describe("guide dropdown", () => {
+  it("is a button that exposes its state and controls its panel", () => {
+    expect(nav).toMatch(/class:list=\{\[\s*"nav__drop"/);
+    expect(nav).toContain('aria-expanded="false"');
+    expect(nav).toContain("aria-controls={`nav-${item.id}`}");
+  });
+
+  it("flattens into plain rows under the hamburger", () => {
+    expect(css).toMatch(
+      /@media \(max-width: 1199px\) \{\s*\.nav__drop \{\s*display: none;/,
+    );
+    expect(css).toMatch(/\.nav__group \.nav__sub,[\s\S]*?display: contents;/);
+  });
+});
+
+describe("demo tabs", () => {
+  it("rebind after client-side navigation and restart the GIF", async () => {
+    const qs = await read("src/components/QuickStart.astro");
+    expect(qs).toContain('document.addEventListener("astro:page-load", bind)');
+    expect(qs).toContain("URL.createObjectURL");
+  });
+});
+
 describe("layout", () => {
   it("uses the 10% wider content width", () => {
     expect(css).toContain("--container: 1298px;");

@@ -1,0 +1,80 @@
+# Played by bin/screencast. See docs/screencast-script.md.
+# Placeholders: Grace Hopper owns github.com/kigster/sopsy-demo; Alan Turing joins it.
+# The prompts use powerline glyphs (U+E0B0 , U+E0A0 ): record in a terminal
+# with a Powerline or Nerd Font.
+
+# Off camera: the two "laptops" are two folders on this machine.
+- quiet: true
+  commands:
+    - rm -rf /tmp/sopsy*
+    - mkdir -p /tmp/sopsy-demo/grace /tmp/sopsy-demo/alan
+# ── Grace ──────────────────────────────────────────────────────────────────
+- clear: true
+  dir: /tmp/sopsy-demo/grace
+  env: { USER: grace }
+  prompt: &grace "\e[1;38;5;231;48;5;28m grace@macbook \e[0;38;5;28;48;5;25m\e[1;38;5;231;48;5;25m ~/sopsy-demo \e[0;38;5;25;48;5;238m\e[38;5;252;48;5;238m  main \e[0;38;5;238m\e[0m "
+  commands:
+    - "# \e[1;32mGrace starts a repository for the team's secrets"
+    - git init -q -b main sopsy-demo
+    - cd sopsy-demo
+    - git remote add origin git@github.com:kigster/sopsy-demo.git
+    - "# Everyone on the team installs the same tools from one Brewfile"
+    - "echo '# Brewfile for the project' > Brewfile"
+    - echo "tap 'kigster/tap'" >> Brewfile
+    - echo "brew 'sopsy'" >> Brewfile
+    - "brew bundle --verbose 2>/dev/null | grep -v '✘'"
+    - "# Now that sopsy is installed, it can pull the remaining dependencies"
+    - "sleep 2 && sopsy deps"
+    - "# Grace initializes the repository for use with Sopsy to encrypt team's secrets"
+    - "# She chooses to use hardware keys only: Secure Enclave or YubiKey. We skip emergency keys in this case."
+    - "# They can always be added with 'sopsy recipient break-glass' later for offline emergency storage"
+- quiet: true
+  commands:
+    - sleep 5
+- quiet: false
+  commands:
+    # ── Grace Initializes Repo ────────────────────────────────────────────────
+    - "ls -al"
+    - "sopsy init -s yubikey -b cached --yubikey-slot 5 -c never --allow-stores onchip,exthardware --no-emergency-keys -y"
+    - "ls -al"
+    - "# Next, let's add some secrets to our dotenv file .env"
+    - "echo 'WEATHER_API_KEY=wx_4f9d2c7e81b04a6f9e3d5c2b1a7f8e60' >> .env"
+    - "echo 'MAPS_API_KEY=mp_live_9KfT2xQ7vLr4Zs8NcWb3Hj6Ye1Ua5Dp0' >> .env"
+    - "# And encrypt .env"
+    - "sopsy encrypt .env -o .env.encrypted"
+    - "# Make sure we can't commit by accident the non-encrypted version"
+    - "echo '.env' >> .gitignore"
+    - "# But can commit the encrypted one"
+    - "echo '!.env.encrypted' >> .gitignore"
+    - "# You can add values to the encrypted files using several methods:"
+    - "sopsy set BRAINTRUST_API_KEY sk-bt-7Hq2Wm9Xc4Lp8Rz3Tn6Vd1Ks5Fy0Ga"
+    - "# Time to commit and push"
+    - git add -A && git commit -qm 'Encrypt secrets with sopsy'
+    - git branch -M main
+    - git push -u origin main -f
+    - "# I am done. Encryption in this repo is initialized and ready for others to join."
+    - "# At the moment I am the only one who can approve them. As soon as they are approved"
+    - "# and the change is pushed to GitHub, they can approve others too."
+    - "# Let's see how this works in action."
+# ── Alan, ten seconds later ────────────────────────────────────────────────
+- clear: true
+  pause: 10
+  dir: /tmp/sopsy-demo/alan
+  env: { USER: alan }
+  prompt: "\e[1;38;5;231;48;5;90m alan@linux-dell \e[0;38;5;90;48;5;30m\e[1;38;5;231;48;5;30m ~/sopsy-demo \e[0;38;5;30;48;5;238m\e[38;5;252;48;5;238m  main \e[0;38;5;238m\e[0m "
+  commands:
+    - "# We are now on Alan's laptop, let's join"
+    - git clone -q git@github.com:kigster/sopsy-demo.git
+    - cd sopsy-demo
+    - brew bundle 2>/dev/null
+    - sopsy join "Alan Turing" -s yubikey -c cached -b cached
+    - git add -A && git commit -qm 'Request sopsy access for Alan' && git push
+# ── Back to Grace ──────────────────────────────────────────────────────────
+- clear: true
+  pause: 4
+  dir: /tmp/sopsy-demo/grace/sopsy-demo
+  env: { USER: grace }
+  prompt: *grace
+  commands:
+    - git pull -q
+    - sopsy approve "Alan Turing" -g && git commit -m 'Approve Alan' && git push

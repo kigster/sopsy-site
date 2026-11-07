@@ -1,6 +1,6 @@
 ---
 import { SOPSY_VERSION } from "../constants";
-import { docRoutes, routeHref } from "../routes";
+import { navItems, routeBySlug, routeHref } from "../routes";
 
 const repo = "https://github.com/kigster/sopsy";
 const crate = "https://crates.io/crates/sopsy";
@@ -22,14 +22,56 @@ const here = Astro.url.pathname.replace(/\/$/, "");
 
     <nav class="nav__links" id="nav-menu" aria-label="Primary">
       {
-        docRoutes.map((r) => (
-          <a
-            href={routeHref(r.slug)}
-            aria-current={here === routeHref(r.slug) ? "page" : undefined}
-          >
-            {r.label}
-          </a>
-        ))
+        navItems.map((item) =>
+          item.kind === "link" ? (
+            <a
+              href={routeHref(item.slug) + (item.hash ? `#${item.hash}` : "")}
+              aria-current={
+                !item.hash && here === routeHref(item.slug) ? "page" : undefined
+              }
+            >
+              {item.label}
+            </a>
+          ) : (
+            // A dropdown on desktop; under the hamburger its links flatten
+            // into ordinary rows and the toggle is hidden (see global.css).
+            <div class="nav__group">
+              <button
+                type="button"
+                class:list={[
+                  "nav__drop",
+                  {
+                    "is-current": item.slugs.some((s) => here === routeHref(s)),
+                  },
+                ]}
+                aria-expanded="false"
+                aria-controls={`nav-${item.id}`}
+              >
+                {item.label}
+                <svg viewBox="0 0 12 12" aria-hidden="true">
+                  <path
+                    d="M3 4.5 6 7.5 9 4.5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+              <div class="nav__sub" id={`nav-${item.id}`}>
+                {item.slugs.map((s) => (
+                  <a
+                    href={routeHref(s)}
+                    aria-current={here === routeHref(s) ? "page" : undefined}
+                  >
+                    {routeBySlug(s).label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ),
+        )
       }
     </nav>
 
