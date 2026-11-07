@@ -4,7 +4,7 @@ import { navItems, routeBySlug, routeHref } from "../routes";
 
 const repo = "https://github.com/kigster/sopsy";
 const crate = "https://crates.io/crates/sopsy";
-const here = Astro.url.pathname.replace(/\/$/, "");
+const here = Astro.url.pathname.replace(/\/?$/, "/"); // routeHref form
 ---
 
 <!-- Persisted across page transitions: only the content below it fades. -->

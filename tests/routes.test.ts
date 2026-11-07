@@ -27,18 +27,18 @@ describe("docs routes", () => {
 
   it("send every old one-page anchor to its new route", () => {
     expect(anchorRedirects).toMatchObject({
-      quickstart: "/start",
-      new: "/new",
-      why: "/why",
-      features: "/features",
-      flow: "/features#flow",
-      ci: "/features#ci",
-      prevent: "/features#prevent",
-      onboarding: "/teams",
-      teams: "/teams#teams",
-      security: "/security",
-      commands: "/commands",
-      install: "/install",
+      quickstart: "/start/",
+      new: "/new/",
+      why: "/why/",
+      features: "/features/",
+      flow: "/features/#flow",
+      ci: "/features/#ci",
+      prevent: "/features/#prevent",
+      onboarding: "/teams/",
+      teams: "/teams/#teams",
+      security: "/security/",
+      commands: "/commands/",
+      install: "/install/",
     });
     expect(home).toContain("anchorRedirects");
   });
@@ -102,6 +102,14 @@ describe("page transitions", () => {
   it("re-run page scripts on astro:page-load, not DOMContentLoaded", () => {
     expect(base).toContain('"astro:page-load"');
     expect(base).not.toContain("DOMContentLoaded");
+  });
+});
+
+describe("trailing slashes", () => {
+  it("are on every route URL, matching the host and the build", async () => {
+    const config = await read("astro.config.mjs");
+    expect(config).toContain('trailingSlash: "always"');
+    for (const r of docRoutes) expect(routeHref(r.slug)).toBe(`/${r.slug}/`);
   });
 });
 

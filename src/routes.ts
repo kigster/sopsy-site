@@ -96,9 +96,10 @@ export const navItems: NavItem[] = [
 export const routeBySlug = (slug: string): DocRoute =>
   docRoutes.find((r) => r.slug === slug)!;
 
-/** Site-relative URL of a route, honoring the configured base. */
+/** Site-relative URL of a route, honoring the configured base. Ends in a
+ *  slash (trailingSlash: "always"), the form the host serves without a 301. */
 export const routeHref = (slug: string) =>
-  `${(import.meta.env?.BASE_URL ?? "/").replace(/\/$/, "")}/${slug}`;
+  `${(import.meta.env?.BASE_URL ?? "/").replace(/\/$/, "")}/${slug}/`;
 
 /** Old `/#anchor` → new URL. The first anchor of a route is its page top. */
 export const anchorRedirects: Record<string, string> = Object.fromEntries(
