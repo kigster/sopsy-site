@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Render the social preview images from docs/social/card.html with headless
+# Chrome. Run it again after editing the card or the logo.
+#
+#   bin/social-cards        # writes public/social/*.png
+#   bin/social-cards -n     # print what would be written
+set -euo pipefail
+
+root="$(cd "$(dirname "$0")/.." && pwd)"
+card="file://${root}/docs/social/card.html"
+out="${root}/public/social"
+chrome="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
+
+# name  width  height  fmt
+cards=(
+  "sopsy-2-og.png 1200 630 og"
+  "sopsy-2-instagram-square.png 1080 1080 square"
+  "sopsy-2-instagram-portrait.png 1080 1350 portrait"
+)
+
+dry_run=false
+[[ "${1:-}" == "-n" || "${1:-}" == "--dry-run" ]] && dry_run=true
+
+[[ -x "$chrome" ]] || {
+  echo "Chrome not found at: $chrome (set CHROME=...)" >&2
+  exit 1
+}
+mkdir -p "$out"
+
+for c in "${cards[@]}"; do
+  read -r name w h fmt <<<"$c"
+  if $dry_run; then
+    echo "would write public/social/${name} (${w}x${h}, fmt=${fmt})"
+    continue
+  fi
+  # virtual time lets the web fonts load before the shot is taken
+  "$chrome" --headless=new --disable-gpu --hide-scrollbars \
+    --force-device-scale-factor=1 --virtual-time-budget=8000 \
+    --window-size="${w},${h}" --screenshot="${out}/${name}" \
+    "${card}?fmt=${fmt}" >/dev/null 2>&1
+  echo "✓ public/social/${name} (${w}x${h})"
+done

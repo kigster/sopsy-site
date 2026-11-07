@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test";
-import { docRoutes, navItems, anchorRedirects } from "../src/routes";
+import { docRoutes, navItems, anchorRedirects, routeHref } from "../src/routes";
 
 const read = (path: string) =>
   Bun.file(new URL(`../${path}`, import.meta.url)).text();
@@ -27,18 +27,18 @@ describe("docs routes", () => {
 
   it("send every old one-page anchor to its new route", () => {
     expect(anchorRedirects).toMatchObject({
-      quickstart: "/start",
-      new: "/new",
-      why: "/why",
-      features: "/features",
-      flow: "/features#flow",
-      ci: "/features#ci",
-      prevent: "/features#prevent",
-      onboarding: "/teams",
-      teams: "/teams#teams",
-      security: "/security",
-      commands: "/commands",
-      install: "/install",
+      quickstart: "/start/",
+      new: "/new/",
+      why: "/why/",
+      features: "/features/",
+      flow: "/features/#flow",
+      ci: "/features/#ci",
+      prevent: "/features/#prevent",
+      onboarding: "/teams/",
+      teams: "/teams/#teams",
+      security: "/security/",
+      commands: "/commands/",
+      install: "/install/",
     });
     expect(home).toContain("anchorRedirects");
   });
@@ -102,6 +102,35 @@ describe("page transitions", () => {
   it("re-run page scripts on astro:page-load, not DOMContentLoaded", () => {
     expect(base).toContain('"astro:page-load"');
     expect(base).not.toContain("DOMContentLoaded");
+  });
+});
+
+describe("trailing slashes", () => {
+  it("are on every route URL, matching the host and the build", async () => {
+    const config = await read("astro.config.mjs");
+    expect(config).toContain('trailingSlash: "always"');
+    for (const r of docRoutes) expect(routeHref(r.slug)).toBe(`/${r.slug}/`);
+  });
+});
+
+describe("social previews", () => {
+  it("give LinkedIn and X a large absolute image of the right size", async () => {
+    const config = await read("astro.config.mjs");
+    expect(config).toContain('site: "https://sopsy-cli.dev"');
+    for (const tag of [
+      'property="og:image" content={ogImage}',
+      'property="og:image:width" content="1200"',
+      'property="og:image:height" content="630"',
+      'property="og:url" content={pageUrl}',
+      'name="twitter:card" content="summary_large_image"',
+      'name="twitter:image" content={ogImage}',
+    ])
+      expect(base).toContain(tag);
+    const png = Bun.file(
+      new URL("../public/social/sopsy-2-og.png", import.meta.url),
+    );
+    const head = new DataView(await png.slice(16, 24).arrayBuffer());
+    expect([head.getUint32(0), head.getUint32(4)]).toEqual([1200, 630]);
   });
 });
 
